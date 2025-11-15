@@ -6,15 +6,13 @@ import openfl.display.ShaderParameter;
 import openfl.display.ShaderParameterType;
 import openfl.utils.Assets;
 
-typedef Light =
-{
+typedef Light = {
 	var position:Array<Float>;
 	var color:Array<Float>;
 	var radius:Float;
 }
 
-class RainShader extends FlxShader
-{
+class RainShader extends FlxShader {
 	@:glVertexHeader('
 		  // normalized screen coord
 		  //   (0, 0) is the top left of the window
@@ -83,7 +81,6 @@ class RainShader extends FlxShader
 			  return sampleBitmapScreen(worldToScreen(worldCoord));
 		  }
 	  ', true)
-
 	@:glFragmentSource("
 	  		#pragma header
 
@@ -354,11 +351,9 @@ class RainShader extends FlxShader
 				gl_FragColor = vec4(color, 1);
 			}
 		")
-
 	static final MAX_LIGHTS:Int = 8;
 
-	public var lights:Array<
-	{
+	public var lights:Array<{
 		position:ShaderParameter<Float>,
 		color:ShaderParameter<Float>,
 		radius:ShaderParameter<Float>,
@@ -366,8 +361,7 @@ class RainShader extends FlxShader
 
 	public var time(default, set):Float = 1;
 
-	function set_time(value:Float):Float
-	{
+	function set_time(value:Float):Float {
 		this.uTime.value[0] = value;
 		return time = value;
 	}
@@ -377,8 +371,7 @@ class RainShader extends FlxShader
 	// The size of the raindrops is proportional to the value of this parameter.
 	public var scale(default, set):Float = 1;
 
-	function set_scale(value:Float):Float
-	{
+	function set_scale(value:Float):Float {
 		this.uScale.value[0] = value;
 		return scale = value;
 	}
@@ -386,8 +379,7 @@ class RainShader extends FlxShader
 	// The intensity of the rain. Zero means no rain and one means the maximum amount of rain.
 	public var intensity(default, set):Float = 0.5;
 
-	function set_intensity(value:Float):Float
-	{
+	function set_intensity(value:Float):Float {
 		this.uIntensity.value[0] = value;
 		return intensity = value;
 	}
@@ -395,8 +387,7 @@ class RainShader extends FlxShader
 	// the y coord of the puddle, used to mirror things
 	public var puddleY(default, set):Float = 0;
 
-	function set_puddleY(value:Float):Float
-	{
+	function set_puddleY(value:Float):Float {
 		this.uPuddleY.value[0] = value;
 		return puddleY = value;
 	}
@@ -404,46 +395,40 @@ class RainShader extends FlxShader
 	// the y scale of the puddle, the less this value the more the puddle effects squished
 	public var puddleScaleY(default, set):Float = 0;
 
-	function set_puddleScaleY(value:Float):Float
-	{
+	function set_puddleScaleY(value:Float):Float {
 		this.uPuddleScaleY.value[0] = value;
 		return puddleScaleY = value;
 	}
 
 	public var blurredScreen(default, set):BitmapData;
 
-	function set_blurredScreen(value:BitmapData):BitmapData
-	{
+	function set_blurredScreen(value:BitmapData):BitmapData {
 		this.uBlurredScreen.input = value;
 		return blurredScreen = value;
 	}
 
 	public var mask(default, set):BitmapData;
 
-	function set_mask(value:BitmapData):BitmapData
-	{
+	function set_mask(value:BitmapData):BitmapData {
 		this.uMask.input = value;
 		return mask = value;
 	}
 
 	public var lightMap(default, set):BitmapData;
 
-	function set_lightMap(value:BitmapData):BitmapData
-	{
+	function set_lightMap(value:BitmapData):BitmapData {
 		this.uLightMap.input = value;
 		return lightMap = value;
 	}
 
 	public var numLightsSwag(default, set):Int = 0; // swag heads, we have never been more back (needs different name purely for hashlink casting fix)
 
-	function set_numLightsSwag(value:Int):Int
-	{
+	function set_numLightsSwag(value:Int):Int {
 		this.numLights.value[0] = value;
 		return numLightsSwag = value;
 	}
 
-	public function new()
-	{
+	public function new() {
 		super();
 		this.uTime.value = [1.0];
 		this.uScale.value = [1.0];
@@ -454,50 +439,45 @@ class RainShader extends FlxShader
 		this.uScreenResolution.value = [FlxG.width, FlxG.height];
 	}
 
-	public function update(elapsed:Float):Void
-	{
+	public function update(elapsed:Float):Void {
 		time += elapsed;
 	}
 
 	/*override function __processGLData(source:String, storageType:String):Void
-	{
-		super.__processGLData(source, storageType);
-		if (storageType == 'uniform')
 		{
-			lights = [
-				for (i in 0...MAX_LIGHTS)
-				{
-					position: addFloatUniform('lights[$i].position', 2),
-					color: addFloatUniform('lights[$i].color', 3),
-					radius: addFloatUniform('lights[$i].radius', 1),
-				}
-			];
-		}
+			super.__processGLData(source, storageType);
+			if (storageType == 'uniform')
+			{
+				lights = [
+					for (i in 0...MAX_LIGHTS)
+					{
+						position: addFloatUniform('lights[$i].position', 2),
+						color: addFloatUniform('lights[$i].color', 3),
+						radius: addFloatUniform('lights[$i].radius', 1),
+					}
+				];
+			}
 	}*/
-
-	public function updateViewInfo(screenWidth:Float, screenHeight:Float, camera:FlxCamera):Void
-	{
+	public function updateViewInfo(screenWidth:Float, screenHeight:Float, camera:FlxCamera):Void {
 		uScreenResolution.value = [screenWidth, screenHeight];
 		uCameraBounds.value = [camera.viewLeft, camera.viewTop, camera.viewRight, camera.viewBottom];
 	}
-  
-	/*override function __createGLProgram(vertexSource:String, fragmentSource:String):GLProgram
-	{
-	  try
-	  {
-		final res = super.__createGLProgram(vertexSource, fragmentSource);
-		return res;
-	  }
-	  catch (error)
-	  {
-		Log.warn(error); // prevent the app from dying immediately
-		return null;
-	  }
-	}*/
 
+	/*override function __createGLProgram(vertexSource:String, fragmentSource:String):GLProgram
+		{
+		  try
+		  {
+			final res = super.__createGLProgram(vertexSource, fragmentSource);
+			return res;
+		  }
+		  catch (error)
+		  {
+			Log.warn(error); // prevent the app from dying immediately
+			return null;
+		  }
+	}*/
 	@:access(openfl.display.ShaderParameter)
-	function addFloatUniform(name:String, length:Int):ShaderParameter<Float>
-	{
+	function addFloatUniform(name:String, length:Int):ShaderParameter<Float> {
 		final res = new ShaderParameter<Float>();
 		res.name = name;
 		res.type = [null, FLOAT, FLOAT2, FLOAT3, FLOAT4][length];

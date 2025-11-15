@@ -21,8 +21,7 @@ typedef DialogueCharacterFile = {
 	var scale:Float;
 }
 
-class DialogueCharacter extends FlxSprite
-{
+class DialogueCharacter extends FlxSprite {
 	private static var IDLE_POSTFIX:String = '-IDLE';
 	public static var DEFAULT_CHARACTER:String = 'bf';
 	public static var DEFAULT_SCALE:Float = 0.7;
@@ -30,16 +29,17 @@ class DialogueCharacter extends FlxSprite
 	public var jsonFile:DialogueCharacterFile = null;
 	public var dialogueAnimations:Map<String, DialogueAnimArray> = new Map<String, DialogueAnimArray>();
 
-	public var startingPos:Float = 0; //For center characters, it works as the starting Y, for everything else it works as starting X
-	public var isGhost:Bool = false; //For the editor
+	public var startingPos:Float = 0; // For center characters, it works as the starting Y, for everything else it works as starting X
+	public var isGhost:Bool = false; // For the editor
 	public var curCharacter:String = 'bf';
 	public var skiptimer = 0;
 	public var skipping = 0;
-	public function new(x:Float = 0, y:Float = 0, character:String = null)
-	{
+
+	public function new(x:Float = 0, y:Float = 0, character:String = null) {
 		super(x, y);
 
-		if(character == null) character = DEFAULT_CHARACTER;
+		if (character == null)
+			character = DEFAULT_CHARACTER;
 		this.curCharacter = character;
 
 		reloadCharacterJson(character);
@@ -47,7 +47,8 @@ class DialogueCharacter extends FlxSprite
 		reloadAnimations();
 
 		antialiasing = ClientPrefs.data.antialiasing;
-		if(jsonFile.no_antialiasing == true) antialiasing = false;
+		if (jsonFile.no_antialiasing == true)
+			antialiasing = false;
 	}
 
 	public function reloadCharacterJson(character:String) {
@@ -60,22 +61,21 @@ class DialogueCharacter extends FlxSprite
 			path = Paths.getSharedPath(characterPath);
 		}
 
-		if(!FileSystem.exists(path)) {
+		if (!FileSystem.exists(path)) {
 			path = Paths.getSharedPath('images/dialogue/' + DEFAULT_CHARACTER + '.json');
 		}
 		rawJson = File.getContent(path);
-
 		#else
 		var path:String = Paths.getSharedPath(characterPath);
 		rawJson = Assets.getText(path);
 		#end
-		
+
 		jsonFile = cast Json.parse(rawJson);
 	}
 
 	public function reloadAnimations() {
 		dialogueAnimations.clear();
-		if(jsonFile.animations != null && jsonFile.animations.length > 0) {
+		if (jsonFile.animations != null && jsonFile.animations.length > 0) {
 			for (anim in jsonFile.animations) {
 				animation.addByPrefix(anim.anim, anim.loop_name, 24, isGhost);
 				animation.addByPrefix(anim.anim + IDLE_POSTFIX, anim.idle_name, 24, true);
@@ -86,41 +86,45 @@ class DialogueCharacter extends FlxSprite
 
 	public function playAnim(animName:String = null, playIdle:Bool = false) {
 		var leAnim:String = animName;
-		if(animName == null || !dialogueAnimations.exists(animName)) { //Anim is null, get a random animation
+		if (animName == null || !dialogueAnimations.exists(animName)) { // Anim is null, get a random animation
 			var arrayAnims:Array<String> = [];
 			for (anim in dialogueAnimations) {
 				arrayAnims.push(anim.anim);
 			}
-			if(arrayAnims.length > 0) {
-				leAnim = arrayAnims[FlxG.random.int(0, arrayAnims.length-1)];
+			if (arrayAnims.length > 0) {
+				leAnim = arrayAnims[FlxG.random.int(0, arrayAnims.length - 1)];
 			}
 		}
 
-		if(dialogueAnimations.exists(leAnim) &&
-		(dialogueAnimations.get(leAnim).loop_name == null ||
-		dialogueAnimations.get(leAnim).loop_name.length < 1 ||
-		dialogueAnimations.get(leAnim).loop_name == dialogueAnimations.get(leAnim).idle_name)) {
+		if (dialogueAnimations.exists(leAnim)
+			&& (dialogueAnimations.get(leAnim).loop_name == null
+				|| dialogueAnimations.get(leAnim).loop_name.length < 1
+				|| dialogueAnimations.get(leAnim).loop_name == dialogueAnimations.get(leAnim).idle_name)) {
 			playIdle = true;
 		}
 		animation.play(playIdle ? leAnim + IDLE_POSTFIX : leAnim, false);
 
-		if(dialogueAnimations.exists(leAnim)) {
+		if (dialogueAnimations.exists(leAnim)) {
 			var anim:DialogueAnimArray = dialogueAnimations.get(leAnim);
-			if(playIdle) {
+			if (playIdle) {
 				offset.set(anim.idle_offsets[0], anim.idle_offsets[1]);
-				//trace('Setting idle offsets: ' + anim.idle_offsets);
+				// trace('Setting idle offsets: ' + anim.idle_offsets);
 			} else {
 				offset.set(anim.loop_offsets[0], anim.loop_offsets[1]);
-				//trace('Setting loop offsets: ' + anim.loop_offsets);
+				// trace('Setting loop offsets: ' + anim.loop_offsets);
 			}
 		} else {
 			offset.set(0, 0);
-			trace('Offsets not found! Dialogue character is badly formatted, anim: ' + leAnim + ', ' + (playIdle ? 'idle anim' : 'loop anim'));
+			trace('Offsets not found! Dialogue character is badly formatted, anim: '
+				+ leAnim
+				+ ', '
+				+ (playIdle ? 'idle anim' : 'loop anim'));
 		}
 	}
 
 	public function animationIsLoop():Bool {
-		if(animation.curAnim == null) return false;
+		if (animation.curAnim == null)
+			return false;
 		return !animation.curAnim.name.endsWith(IDLE_POSTFIX);
 	}
 }

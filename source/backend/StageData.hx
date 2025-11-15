@@ -26,8 +26,7 @@ typedef StageFile = {
 	@:optional var _editorMeta:Dynamic;
 }
 
-enum abstract LoadFilters(Int) from Int from UInt to Int to UInt
-{
+enum abstract LoadFilters(Int) from Int from UInt to Int to UInt {
 	var LOW_QUALITY:Int = (1 << 0);
 	var HIGH_QUALITY:Int = (1 << 1);
 
@@ -36,8 +35,7 @@ enum abstract LoadFilters(Int) from Int from UInt to Int to UInt
 }
 
 class StageData {
-	public static function dummy():StageFile
-	{
+	public static function dummy():StageFile {
 		return {
 			directory: "",
 			defaultZoom: 0.9,
@@ -62,38 +60,36 @@ class StageData {
 	}
 
 	public static var forceNextDirectory:String = null;
+
 	public static function loadDirectory(SONG:SwagSong) {
 		var stage:String = '';
-		if(SONG.stage != null)
+		if (SONG.stage != null)
 			stage = SONG.stage;
-		else if(Song.loadedSongName != null)
+		else if (Song.loadedSongName != null)
 			stage = vanillaSongStage(Paths.formatToSongPath(Song.loadedSongName));
 		else
 			stage = 'stage';
 
 		var stageFile:StageFile = getStageFile(stage);
-		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; //preventing crashes
+		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; // preventing crashes
 	}
 
 	public static function getStageFile(stage:String):StageFile {
-		try
-		{
+		try {
 			var path:String = Paths.getPath('stages/' + stage + '.json', TEXT, null, true);
 			#if MODS_ALLOWED
-			if(FileSystem.exists(path))
+			if (FileSystem.exists(path))
 				return cast tjson.TJSON.parse(File.getContent(path));
 			#else
-			if(Assets.exists(path))
+			if (Assets.exists(path))
 				return cast tjson.TJSON.parse(Assets.getText(path));
 			#end
 		}
 		return dummy();
 	}
 
-	public static function vanillaSongStage(songName):String
-	{
-		switch (songName)
-		{
+	public static function vanillaSongStage(songName):String {
+		switch (songName) {
 			case 'spookeez' | 'south' | 'monster':
 				return 'spooky';
 			case 'pico' | 'blammed' | 'philly' | 'philly-nice':
@@ -114,95 +110,92 @@ class StageData {
 		return 'stage';
 	}
 
-	public static var reservedNames:Array<String> = ['gf', 'gfGroup', 'dad', 'dadGroup', 'boyfriend', 'boyfriendGroup']; //blocks these names from being used on stage editor's name input text
-	public static function addObjectsToState(objectList:Array<Dynamic>, gf:FlxSprite, dad:FlxSprite, boyfriend:FlxSprite, ?group:Dynamic = null, ?ignoreFilters:Bool = false)
-	{
-		var addedObjects:Map<String, FlxSprite> = [];
-		for (num => data in objectList)
-		{
-			if (addedObjects.exists(data)) continue;
+	public static var reservedNames:Array<String> = ['gf', 'gfGroup', 'dad', 'dadGroup', 'boyfriend', 'boyfriendGroup']; // blocks these names from being used on stage editor's name input text
 
-			switch(data.type)
-			{
+	public static function addObjectsToState(objectList:Array<Dynamic>, gf:FlxSprite, dad:FlxSprite, boyfriend:FlxSprite, ?group:Dynamic = null,
+			?ignoreFilters:Bool = false) {
+		var addedObjects:Map<String, FlxSprite> = [];
+		for (num => data in objectList) {
+			if (addedObjects.exists(data))
+				continue;
+
+			switch (data.type) {
 				case 'gf', 'gfGroup':
-					if(gf != null)
-					{
-						gf.ID = num; 
-						if (group != null) group.add(gf);
+					if (gf != null) {
+						gf.ID = num;
+						if (group != null)
+							group.add(gf);
 						addedObjects.set('gf', gf);
 					}
 				case 'dad', 'dadGroup':
-					if(dad != null)
-					{
+					if (dad != null) {
 						dad.ID = num;
-						if (group != null) group.add(dad);
+						if (group != null)
+							group.add(dad);
 						addedObjects.set('dad', dad);
 					}
 				case 'boyfriend', 'boyfriendGroup':
-					if(boyfriend != null)
-					{
+					if (boyfriend != null) {
 						boyfriend.ID = num;
-						if (group != null) group.add(boyfriend);
+						if (group != null)
+							group.add(boyfriend);
 						addedObjects.set('boyfriend', boyfriend);
 					}
 
 				case 'square', 'sprite', 'animatedSprite':
-					if(!ignoreFilters && !validateVisibility(data.filters)) continue;
+					if (!ignoreFilters && !validateVisibility(data.filters))
+						continue;
 
 					var spr:ModchartSprite = new ModchartSprite(data.x, data.y);
 					spr.ID = num;
-					if(data.type != 'square')
-					{
-						if(data.type == 'sprite')
+					if (data.type != 'square') {
+						if (data.type == 'sprite')
 							spr.loadGraphic(Paths.image(data.image));
 						else
 							spr.frames = Paths.getAtlas(data.image);
-						
-						if(data.type == 'animatedSprite' && data.animations != null)
-						{
+
+						if (data.type == 'animatedSprite' && data.animations != null) {
 							var anims:Array<objects.Character.AnimArray> = cast data.animations;
-							for (key => anim in anims)
-							{
-								if(anim.indices == null || anim.indices.length < 1)
+							for (key => anim in anims) {
+								if (anim.indices == null || anim.indices.length < 1)
 									spr.animation.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
 								else
 									spr.animation.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
-	
-								if(anim.offsets != null)
+
+								if (anim.offsets != null)
 									spr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-	
-								if(spr.animation.curAnim == null || data.firstAnimation == anim.anim)
+
+								if (spr.animation.curAnim == null || data.firstAnimation == anim.anim)
 									spr.playAnim(anim.anim, true);
 							}
 						}
-						for (varName in ['antialiasing', 'flipX', 'flipY'])
-						{
+						for (varName in ['antialiasing', 'flipX', 'flipY']) {
 							var dat:Dynamic = Reflect.getProperty(data, varName);
-							if(dat != null) Reflect.setProperty(spr, varName, dat);
+							if (dat != null)
+								Reflect.setProperty(spr, varName, dat);
 						}
-						if(!ClientPrefs.data.antialiasing) spr.antialiasing = false;
-					}
-					else
-					{
+						if (!ClientPrefs.data.antialiasing)
+							spr.antialiasing = false;
+					} else {
 						spr.makeGraphic(1, 1, FlxColor.WHITE);
 						spr.antialiasing = false;
 					}
 
-					if(data.scale != null && (data.scale[0] != 1.0 || data.scale[1] != 1.0))
-					{
+					if (data.scale != null && (data.scale[0] != 1.0 || data.scale[1] != 1.0)) {
 						spr.scale.set(data.scale[0], data.scale[1]);
 						spr.updateHitbox();
 					}
 					spr.scrollFactor.set(data.scroll[0], data.scroll[1]);
 					spr.color = CoolUtil.colorFromString(data.color);
-					
-					for (varName in ['alpha', 'angle'])
-					{
+
+					for (varName in ['alpha', 'angle']) {
 						var dat:Dynamic = Reflect.getProperty(data, varName);
-						if(dat != null) Reflect.setProperty(spr, varName, dat);
+						if (dat != null)
+							Reflect.setProperty(spr, varName, dat);
 					}
 
-					if (group != null) group.add(spr);
+					if (group != null)
+						group.add(spr);
 					addedObjects.set(data.name, spr);
 
 				default:
@@ -214,14 +207,15 @@ class StageData {
 		return addedObjects;
 	}
 
-	public static function validateVisibility(filters:LoadFilters)
-	{
-		if((filters & STORY_MODE) == STORY_MODE)
-			if(!PlayState.isStoryMode) return false;
-		else if((filters & FREEPLAY) == FREEPLAY)
-			if(PlayState.isStoryMode) return false;
+	public static function validateVisibility(filters:LoadFilters) {
+		if ((filters & STORY_MODE) == STORY_MODE)
+			if (!PlayState.isStoryMode)
+				return false;
+			else if ((filters & FREEPLAY) == FREEPLAY)
+				if (PlayState.isStoryMode)
+					return false;
 
-		return ((ClientPrefs.data.lowQuality && (filters & LOW_QUALITY) == LOW_QUALITY) ||
-			(!ClientPrefs.data.lowQuality && (filters & HIGH_QUALITY) == HIGH_QUALITY));
+		return ((ClientPrefs.data.lowQuality && (filters & LOW_QUALITY) == LOW_QUALITY)
+			|| (!ClientPrefs.data.lowQuality && (filters & HIGH_QUALITY) == HIGH_QUALITY));
 	}
 }

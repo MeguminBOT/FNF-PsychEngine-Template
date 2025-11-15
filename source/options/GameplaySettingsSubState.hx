@@ -1,17 +1,15 @@
 package options;
 
-class GameplaySettingsSubState extends BaseOptionsMenu
-{
-	public function new()
-	{
+class GameplaySettingsSubState extends BaseOptionsMenu {
+	public function new() {
 		title = Language.getPhrase('gameplay_menu', 'Gameplay Settings');
-		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
+		rpcTitle = 'Gameplay Settings Menu'; // for Discord Rich Presence
 
-		//I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
+		// I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
 		var option:Option = new Option('Downscroll', //Name
-			'If checked, notes go Down instead of Up, simple enough.', //Description
-			'downScroll', //Save data variable name
-			BOOL); //Variable type
+			'If checked, notes go Down instead of Up, simple enough.', // Description
+			'downScroll', // Save data variable name
+			BOOL); // Variable type
 		addOption(option);
 
 		var option:Option = new Option('Middlescroll',

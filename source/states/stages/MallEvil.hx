@@ -2,10 +2,8 @@ package states.stages;
 
 import states.stages.objects.*;
 
-class MallEvil extends BaseStage
-{
-	override function create()
-	{
+class MallEvil extends BaseStage {
+	override function create() {
 		var bg:BGSprite = new BGSprite('christmas/evilBG', -400, -500, 0.2, 0.2);
 		bg.setGraphicSize(Std.int(bg.width * 0.8));
 		bg.updateHitbox();
@@ -17,20 +15,17 @@ class MallEvil extends BaseStage
 		var evilSnow:BGSprite = new BGSprite('christmas/evilSnow', -200, 700);
 		add(evilSnow);
 		setDefaultGF('gf-christmas');
-		
-		//Winter Horrorland cutscene
-		if (isStoryMode && !seenCutscene)
-		{
-			switch(songName)
-			{
+
+		// Winter Horrorland cutscene
+		if (isStoryMode && !seenCutscene) {
+			switch (songName) {
 				case 'winter-horrorland':
 					setStartCallback(winterHorrorlandCutscene);
 			}
 		}
 	}
 
-	function winterHorrorlandCutscene()
-	{
+	function winterHorrorlandCutscene() {
 		camHUD.visible = false;
 		inCutscene = true;
 
@@ -51,13 +46,11 @@ class MallEvil extends BaseStage
 		});
 
 		// zoom out
-		new FlxTimer().start(0.8, function(tmr:FlxTimer)
-		{
+		new FlxTimer().start(0.8, function(tmr:FlxTimer) {
 			camHUD.visible = true;
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
 				ease: FlxEase.quadInOut,
-				onComplete: function(twn:FlxTween)
-				{
+				onComplete: function(twn:FlxTween) {
 					startCountdown();
 				}
 			});

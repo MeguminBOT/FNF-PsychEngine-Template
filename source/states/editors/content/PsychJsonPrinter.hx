@@ -2,42 +2,37 @@ package states.editors.content;
 
 import haxe.format.JsonPrinter;
 
- /**
-  *  Used to print V-Slice charts and other things with a bit less characters
-  *  This helps with readability in my opinion
-  *      -Shadow Mario
-  */
-
-class PsychJsonPrinter extends JsonPrinter
-{
+/**
+ *  Used to print V-Slice charts and other things with a bit less characters
+ *  This helps with readability in my opinion
+ *      -Shadow Mario
+ */
+class PsychJsonPrinter extends JsonPrinter {
 	var _ignoreTab:Array<String> = [];
-	public static function print(o:Dynamic, ?ignoreTab:Array<String>):String
-	{
+
+	public static function print(o:Dynamic, ?ignoreTab:Array<String>):String {
 		var printer = new PsychJsonPrinter(null, '\t');
-		if(ignoreTab != null) printer._ignoreTab = ignoreTab;
+		if (ignoreTab != null)
+			printer._ignoreTab = ignoreTab;
 		printer.write("", o);
 		return printer.buf.toString();
 	}
 
 	var _singleLineCheckNext:Bool = false;
-	override function fieldsString(v:Dynamic, fields:Array<String>)
-	{
+
+	override function fieldsString(v:Dynamic, fields:Array<String>) {
 		fieldsStringEx(v, fields);
 	}
 
-	function fieldsStringEx(v:Dynamic, fields:Array<String>, ?mapCheck:Bool = false)
-	{
+	function fieldsStringEx(v:Dynamic, fields:Array<String>, ?mapCheck:Bool = false) {
 		addChar('{'.code);
 		var len = fields.length;
 		var last = len - 1;
 
 		var hasArrayInsideIt:Bool = false;
-		if(_singleLineCheckNext)
-		{
-			for (subv in Reflect.fields(v))
-			{
-				switch(Type.typeof(subv))
-				{
+		if (_singleLineCheckNext) {
+			for (subv in Reflect.fields(v)) {
+				switch (Type.typeof(subv)) {
 					case TObject, TClass(Array):
 						hasArrayInsideIt = true;
 						break;
@@ -53,22 +48,18 @@ class PsychJsonPrinter extends JsonPrinter
 			var value = Reflect.field(v, f);
 			if (Reflect.isFunction(value))
 				continue;
-			if (first)
-			{
+			if (first) {
 				nind++;
 				first = false;
-			}
-			else
-			{
+			} else {
 				addChar(','.code);
-				if(_singleLineCheckNext && !hasArrayInsideIt) addChar(' '.code);
+				if (_singleLineCheckNext && !hasArrayInsideIt)
+					addChar(' '.code);
 			}
 
 			var _mapCheck = mapCheck;
-			if(_mapCheck)
-			{
-				switch(Type.typeof(value))
-				{
+			if (_mapCheck) {
+				switch (Type.typeof(value)) {
 					case TObject, TClass(Array), TClass(haxe.ds.StringMap):
 						usedMapCheck = true;
 					default:
@@ -76,8 +67,7 @@ class PsychJsonPrinter extends JsonPrinter
 				}
 			}
 
-			if(!_singleLineCheckNext || hasArrayInsideIt || _mapCheck || usedMapCheck)
-			{
+			if (!_singleLineCheckNext || hasArrayInsideIt || _mapCheck || usedMapCheck) {
 				newl();
 				ipad();
 			}
@@ -87,21 +77,21 @@ class PsychJsonPrinter extends JsonPrinter
 				addChar(' '.code);
 
 			var doContain:Bool = _ignoreTab.contains(f);
-			if(doContain) _singleLineCheckNext = true;
+			if (doContain)
+				_singleLineCheckNext = true;
 			write(f, value);
-			if(doContain) _singleLineCheckNext = false;
+			if (doContain)
+				_singleLineCheckNext = false;
 
 			if (i == last) {
 				nind--;
-				if(!_singleLineCheckNext)
-				{
+				if (!_singleLineCheckNext) {
 					newl();
 					ipad();
 				}
 			}
 		}
-		if(hasArrayInsideIt || usedMapCheck)
-		{
+		if (hasArrayInsideIt || usedMapCheck) {
 			newl();
 			ipad();
 		}
@@ -133,12 +123,9 @@ class PsychJsonPrinter extends JsonPrinter
 					var last = len - 1;
 
 					var hasArrayInsideIt:Bool = false;
-					if(_singleLineCheckNext)
-					{
-						for (subv in v)
-						{
-							switch(Type.typeof(subv))
-							{
+					if (_singleLineCheckNext) {
+						for (subv in v) {
+							switch (Type.typeof(subv)) {
 								case TObject, TClass(Array):
 									hasArrayInsideIt = true;
 									break;
@@ -148,15 +135,14 @@ class PsychJsonPrinter extends JsonPrinter
 					}
 
 					for (i in 0...len) {
-						if (i > 0)
-						{
+						if (i > 0) {
 							addChar(','.code);
-							if(_singleLineCheckNext && !hasArrayInsideIt) addChar(' '.code);
-						}
-						else nind++;
+							if (_singleLineCheckNext && !hasArrayInsideIt)
+								addChar(' '.code);
+						} else
+							nind++;
 
-						if(!_singleLineCheckNext || hasArrayInsideIt)
-						{
+						if (!_singleLineCheckNext || hasArrayInsideIt) {
 							newl();
 							ipad();
 						}
@@ -164,15 +150,13 @@ class PsychJsonPrinter extends JsonPrinter
 						write(i, v[i]);
 						if (i == last) {
 							nind--;
-							if(!_singleLineCheckNext)
-							{
+							if (!_singleLineCheckNext) {
 								newl();
 								ipad();
 							}
 						}
 					}
-					if(hasArrayInsideIt)
-					{
+					if (hasArrayInsideIt) {
 						newl();
 						ipad();
 					}

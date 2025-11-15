@@ -1,14 +1,11 @@
 package states.editors;
 
 import backend.WeekData;
-
 import objects.Character;
-
 import states.MainMenuState;
 import states.FreeplayState;
 
-class MasterEditorMenu extends MusicBeatState
-{
+class MasterEditorMenu extends MusicBeatState {
 	var options:Array<String> = [
 		'Chart Editor',
 		'Character Editor',
@@ -26,8 +23,7 @@ class MasterEditorMenu extends MusicBeatState
 	private var curDirectory = 0;
 	private var directoryTxt:FlxText;
 
-	override function create()
-	{
+	override function create() {
 		FlxG.camera.bgColor = FlxColor.BLACK;
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
@@ -42,15 +38,14 @@ class MasterEditorMenu extends MusicBeatState
 		grpTexts = new FlxTypedGroup<Alphabet>();
 		add(grpTexts);
 
-		for (i in 0...options.length)
-		{
+		for (i in 0...options.length) {
 			var leText:Alphabet = new Alphabet(90, 320, options[i], true);
 			leText.isMenuItem = true;
 			leText.targetY = i;
 			grpTexts.add(leText);
 			leText.snapToPosition();
 		}
-		
+
 		#if MODS_ALLOWED
 		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 42).makeGraphic(FlxG.width, 42, 0xFF000000);
 		textBG.alpha = 0.6;
@@ -60,14 +55,14 @@ class MasterEditorMenu extends MusicBeatState
 		directoryTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		directoryTxt.scrollFactor.set();
 		add(directoryTxt);
-		
-		for (folder in Mods.getModDirectories())
-		{
+
+		for (folder in Mods.getModDirectories()) {
 			directories.push(folder);
 		}
 
 		var found:Int = directories.indexOf(Mods.currentModDirectory);
-		if(found > -1) curDirectory = found;
+		if (found > -1)
+			curDirectory = found;
 		changeDirectory();
 		#end
 		changeSelection();
@@ -76,36 +71,29 @@ class MasterEditorMenu extends MusicBeatState
 		super.create();
 	}
 
-	override function update(elapsed:Float)
-	{
-		if (controls.UI_UP_P)
-		{
+	override function update(elapsed:Float) {
+		if (controls.UI_UP_P) {
 			changeSelection(-1);
 		}
-		if (controls.UI_DOWN_P)
-		{
+		if (controls.UI_DOWN_P) {
 			changeSelection(1);
 		}
 		#if MODS_ALLOWED
-		if(controls.UI_LEFT_P)
-		{
+		if (controls.UI_LEFT_P) {
 			changeDirectory(-1);
 		}
-		if(controls.UI_RIGHT_P)
-		{
+		if (controls.UI_RIGHT_P) {
 			changeDirectory(1);
 		}
 		#end
 
-		if (controls.BACK)
-		{
+		if (controls.BACK) {
 			MusicBeatState.switchState(new MainMenuState());
 		}
 
-		if (controls.ACCEPT)
-		{
-			switch(options[curSelected]) {
-				case 'Chart Editor'://felt it would be cool maybe
+		if (controls.ACCEPT) {
+			switch (options[curSelected]) {
+				case 'Chart Editor': // felt it would be cool maybe
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
@@ -125,9 +113,8 @@ class MasterEditorMenu extends MusicBeatState
 			FlxG.sound.music.volume = 0;
 			FreeplayState.destroyFreeplayVocals();
 		}
-		
-		for (num => item in grpTexts.members)
-		{
+
+		for (num => item in grpTexts.members) {
 			item.targetY = num - curSelected;
 			item.alpha = 0.6;
 			if (item.targetY == 0)
@@ -136,29 +123,26 @@ class MasterEditorMenu extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function changeSelection(change:Int = 0)
-	{
+	function changeSelection(change:Int = 0) {
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		curSelected = FlxMath.wrap(curSelected + change, 0, options.length - 1);
 	}
 
 	#if MODS_ALLOWED
-	function changeDirectory(change:Int = 0)
-	{
+	function changeDirectory(change:Int = 0) {
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
 		curDirectory += change;
 
-		if(curDirectory < 0)
+		if (curDirectory < 0)
 			curDirectory = directories.length - 1;
-		if(curDirectory >= directories.length)
+		if (curDirectory >= directories.length)
 			curDirectory = 0;
-	
+
 		WeekData.setDirectoryFromWeek();
-		if(directories[curDirectory] == null || directories[curDirectory].length < 1)
+		if (directories[curDirectory] == null || directories[curDirectory].length < 1)
 			directoryTxt.text = '< No Mod Directory Loaded >';
-		else
-		{
+		else {
 			Mods.currentModDirectory = directories[curDirectory];
 			directoryTxt.text = '< Loaded Mod Directory: ' + Mods.currentModDirectory + ' >';
 		}

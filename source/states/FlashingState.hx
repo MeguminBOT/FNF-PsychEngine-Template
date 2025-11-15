@@ -1,20 +1,17 @@
 package states;
 
 import flixel.FlxSubState;
-
 import flixel.effects.FlxFlicker;
 import lime.app.Application;
 
-class FlashingState extends MusicBeatState
-{
+class FlashingState extends MusicBeatState {
 	public static var leftState:Bool = false;
 
 	var isYes:Bool = true;
 	var texts:FlxTypedSpriteGroup<FlxText>;
 	var bg:FlxSprite;
 
-	override function create()
-	{
+	override function create() {
 		super.create();
 
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -24,8 +21,7 @@ class FlashingState extends MusicBeatState
 		texts.alpha = 0.0;
 		add(texts);
 
-		var warnText:FlxText = new FlxText(0, 0, FlxG.width,
-			"Hey, watch out!\n
+		var warnText:FlxText = new FlxText(0, 0, FlxG.width, "Hey, watch out!\n
 			This Mod contains some flashing lights!\n
 			Do you wish to disable them?");
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
@@ -46,9 +42,8 @@ class FlashingState extends MusicBeatState
 		});
 	}
 
-	override function update(elapsed:Float)
-	{
-		if(leftState) {
+	override function update(elapsed:Float) {
+		if (leftState) {
 			super.update(elapsed);
 			return;
 		}
@@ -62,13 +57,13 @@ class FlashingState extends MusicBeatState
 			leftState = true;
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
-			if(!back) {
+			if (!back) {
 				ClientPrefs.data.flashing = !isYes;
 				ClientPrefs.saveSettings();
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 				final button = texts.members[isYes ? 1 : 2];
 				FlxFlicker.flicker(button, 1, 0.1, false, true, function(flk:FlxFlicker) {
-					new FlxTimer().start(0.5, function (tmr:FlxTimer) {
+					new FlxTimer().start(0.5, function(tmr:FlxTimer) {
 						FlxTween.tween(texts, {alpha: 0}, 0.2, {
 							onComplete: (_) -> MusicBeatState.switchState(new TitleState())
 						});
