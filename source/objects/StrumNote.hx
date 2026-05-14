@@ -40,7 +40,7 @@ class StrumNote extends FlxSprite {
 		if (PlayState.isPixelStage)
 			arr = ClientPrefs.data.arrowRGBPixel[leData];
 
-		if (leData <= arr.length) {
+		if (arr != null && leData < arr.length) {
 			@:bypassAccessor
 			{
 				rgbShader.r = arr[0];
