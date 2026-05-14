@@ -18,8 +18,12 @@ class NoteTypesConfig {
 			return noteTypesData.get(name);
 
 		var str:String = Paths.getTextFromFile('custom_notetypes/$name.txt');
-		if (str == null || !str.contains(':') || !str.contains('='))
+		if (str == null || !str.contains(':') || !str.contains('=')) {
+			// Cache the negative lookup AND bail before parsing -- the
+			// previous code fell through and crashed on null `str`.
 			noteTypesData.set(name, null);
+			return null;
+		}
 
 		var parsed:Array<NoteTypeProperty> = [];
 		var lines:Array<String> = CoolUtil.listFromString(str);
