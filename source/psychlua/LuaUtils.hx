@@ -234,6 +234,17 @@ class LuaUtils {
 		}
 	}
 
+	// Resolve a Lua tag like "myObj" or "myObj.subProp.target" without
+	// allocating a split array for the dotless common case. Used by the
+	// many TextFunctions getters/setters that previously did
+	// `tag.split('.')` unconditionally.
+	public static inline function tagToObject(tag:String, ?allowMaps:Bool = false):Dynamic {
+		if (tag.indexOf('.') < 0)
+			return getObjectDirectly(tag, allowMaps);
+		var split:Array<String> = tag.split('.');
+		return getVarInArray(getPropertyLoop(split, true, allowMaps), split[split.length - 1], allowMaps);
+	}
+
 	public static function isOfTypes(value:Any, types:Array<Dynamic>) {
 		for (type in types) {
 			if (Std.isOfType(value, type))
