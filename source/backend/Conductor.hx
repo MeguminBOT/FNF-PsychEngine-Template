@@ -81,7 +81,7 @@ class Conductor {
 
 	public static function getStepRounded(time:Float) {
 		var lastChange = getBPMFromSeconds(time);
-		return lastChange.stepTime + Math.floor(time - lastChange.songTime) / lastChange.stepCrochet;
+		return lastChange.stepTime + Math.floor((time - lastChange.songTime) / lastChange.stepCrochet);
 	}
 
 	public static function getBeat(time:Float) {
