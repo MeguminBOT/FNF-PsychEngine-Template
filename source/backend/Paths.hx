@@ -251,7 +251,12 @@ class Paths {
 	}
 
 	inline static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String {
-		var path:String = getPath(key, TEXT, !ignoreMods);
+		// getPath signature is (file, type, parentfolder, modsAllowed) -- the
+		// previous call passed `!ignoreMods` as the *parentfolder* String slot,
+		// which silently became "true"/"false" path prefixes (breaking every
+		// mod override) and left modsAllowed at its default true regardless of
+		// what the caller asked for.
+		var path:String = getPath(key, TEXT, null, !ignoreMods);
 		#if sys
 		return (FileSystem.exists(path)) ? File.getContent(path) : null;
 		#else
