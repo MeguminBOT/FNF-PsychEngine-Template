@@ -52,9 +52,12 @@ class CoolUtil {
 		return daList != null ? listFromString(daList) : [];
 	}
 
+	// Hoisted -- recompiling this regex on every call is wasteful;
+	// colorFromString is hit a lot from Lua mod scripts.
+	static final _hideCharsRegex:EReg = ~/[\t\n\r]/;
+
 	inline public static function colorFromString(color:String):FlxColor {
-		var hideChars = ~/[\t\n\r]/;
-		var color:String = hideChars.split(color).join('').trim();
+		var color:String = _hideCharsRegex.split(color).join('').trim();
 		if (color.startsWith('0x'))
 			color = color.substring(color.length - 6);
 
@@ -83,13 +86,17 @@ class CoolUtil {
 
 	inline public static function dominantColor(sprite:flixel.FlxSprite):Int {
 		var countByColor:Map<Int, Int> = [];
-		for (col in 0...sprite.frameWidth) {
-			for (row in 0...sprite.frameHeight) {
-				var colorOfThisPixel:FlxColor = sprite.pixels.getPixel32(col, row);
+		final pixels = sprite.pixels;
+		final w:Int = sprite.frameWidth;
+		final h:Int = sprite.frameHeight;
+		for (col in 0...w) {
+			for (row in 0...h) {
+				var colorOfThisPixel:FlxColor = pixels.getPixel32(col, row);
 				if (colorOfThisPixel.alphaFloat > 0.05) {
 					colorOfThisPixel = FlxColor.fromRGB(colorOfThisPixel.red, colorOfThisPixel.green, colorOfThisPixel.blue, 255);
-					var count:Int = countByColor.exists(colorOfThisPixel) ? countByColor[colorOfThisPixel] : 0;
-					countByColor[colorOfThisPixel] = count + 1;
+					// Single map lookup instead of exists()+get pair.
+					final prev = countByColor.get(colorOfThisPixel);
+					countByColor.set(colorOfThisPixel, prev == null ? 1 : prev + 1);
 				}
 			}
 		}
@@ -129,8 +136,10 @@ class CoolUtil {
 			folder = Sys.getCwd() + '$folder';
 
 		folder = folder.replace('/', '\\');
-		if (folder.endsWith('/'))
-			folder.substr(0, folder.length - 1);
+		// substr() is non-mutating -- the original assignment was missing,
+		// so the trailing slash was never actually trimmed. Fixed.
+		if (folder.endsWith('\\'))
+			folder = folder.substr(0, folder.length - 1);
 
 		#if linux
 		var command:String = '/usr/bin/xdg-open';
