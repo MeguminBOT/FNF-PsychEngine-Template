@@ -265,6 +265,11 @@ class PlayState extends MusicBeatState {
 	// Less laggy controls
 	private var keysArray:Array<String>;
 
+	// Reverse-lookup of FlxKey -> strum index, rebuilt once per song from
+	// keysArray + Controls.instance.keyboardBinds. getKeyFromEvent walks two
+	// nested loops on every key event; this collapses it to a single Map.get.
+	private var _keyToStrum:Map<FlxKey, Int> = null;
+
 	public var songName:String;
 
 	// Callbacks for stages
@@ -294,6 +299,7 @@ class PlayState extends MusicBeatState {
 		playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 
 		keysArray = ['note_left', 'note_down', 'note_up', 'note_right'];
+		rebuildKeyToStrumMap();
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
@@ -2675,7 +2681,7 @@ class PlayState extends MusicBeatState {
 
 	private function onKeyPress(event:KeyboardEvent):Void {
 		var eventKey:FlxKey = event.keyCode;
-		var key:Int = getKeyFromEvent(keysArray, eventKey);
+		var key:Int = getStrumFromKey(eventKey);
 
 		if (!controls.controllerMode) {
 			#if debug
@@ -2760,7 +2766,7 @@ class PlayState extends MusicBeatState {
 
 	private function onKeyRelease(event:KeyboardEvent):Void {
 		var eventKey:FlxKey = event.keyCode;
-		var key:Int = getKeyFromEvent(keysArray, eventKey);
+		var key:Int = getStrumFromKey(eventKey);
 		if (!controls.controllerMode && key > -1)
 			keyReleased(key);
 	}
@@ -2791,6 +2797,31 @@ class PlayState extends MusicBeatState {
 			}
 		}
 		return -1;
+	}
+
+	// Build / refresh the FlxKey -> strum-index map from the current keysArray
+	// and Controls bindings. Call this if the player rebinds keys mid-song.
+	public function rebuildKeyToStrumMap():Void {
+		final map:Map<FlxKey, Int> = new Map();
+		final binds = Controls.instance.keyboardBinds;
+		final keys = keysArray;
+		final len = keys.length;
+		for (i in 0...len) {
+			final bound:Array<FlxKey> = binds[keys[i]];
+			if (bound == null) continue;
+			for (j in 0...bound.length) {
+				final k = bound[j];
+				if (k != NONE && !map.exists(k))
+					map.set(k, i);
+			}
+		}
+		_keyToStrum = map;
+	}
+
+	inline function getStrumFromKey(eventKey:FlxKey):Int {
+		if (eventKey == NONE || _keyToStrum == null) return -1;
+		final v = _keyToStrum.get(eventKey);
+		return v == null ? -1 : v;
 	}
 
 	// Hold notes
