@@ -396,10 +396,18 @@ class Note extends FlxSprite {
 		if (PlayState.isPixelStage) {
 			if (isSustainNote) {
 				var graphic = Paths.image('pixelUI/' + skinPixel + 'ENDS' + skinPostfix);
+				if (graphic == null) {
+					FlxG.log.error('Note: missing pixel sustain skin "images/pixelUI/${skinPixel}ENDS${skinPostfix}.png"');
+					return;
+				}
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 2));
 				originalHeight = graphic.height / 2;
 			} else {
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
+				if (graphic == null) {
+					FlxG.log.error('Note: missing pixel skin "images/pixelUI/${skinPixel}${skinPostfix}.png"');
+					return;
+				}
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
 			}
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));

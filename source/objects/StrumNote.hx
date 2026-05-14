@@ -80,6 +80,10 @@ class StrumNote extends FlxSprite {
 			// Paths.image() twice for the exact same texture key, which
 			// triggers a redundant cache lookup and graphic decode.
 			final pixelGraphic = Paths.image('pixelUI/' + texture);
+			if (pixelGraphic == null) {
+				FlxG.log.error('StrumNote: pixel skin missing -- could not load "images/pixelUI/$texture.png"');
+				return;
+			}
 			loadGraphic(pixelGraphic);
 			width = width / 4;
 			height = height / 5;

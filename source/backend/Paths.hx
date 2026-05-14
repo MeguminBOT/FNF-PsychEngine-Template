@@ -348,9 +348,8 @@ class Paths {
 	}
 
 	inline static public function getSparrowAtlas(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames {
-		if (key.contains('psychic'))
-			trace(key, parentFolder, allowGPU);
 		var imageLoaded:FlxGraphic = image(key, parentFolder, allowGPU);
+		if (imageLoaded == null) return null; // missing image -> avoid openfl spamming "null" asset-id errors
 		#if MODS_ALLOWED
 		var xmlExists:Bool = false;
 
@@ -367,6 +366,7 @@ class Paths {
 
 	inline static public function getPackerAtlas(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames {
 		var imageLoaded:FlxGraphic = image(key, parentFolder, allowGPU);
+		if (imageLoaded == null) return null;
 		#if MODS_ALLOWED
 		var txtExists:Bool = false;
 
@@ -383,6 +383,7 @@ class Paths {
 
 	inline static public function getAsepriteAtlas(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames {
 		var imageLoaded:FlxGraphic = image(key, parentFolder, allowGPU);
+		if (imageLoaded == null) return null;
 		#if MODS_ALLOWED
 		var jsonExists:Bool = false;
 
