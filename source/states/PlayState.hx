@@ -3402,15 +3402,21 @@ class PlayState extends MusicBeatState {
 	}
 	#end
 
+	// Read-only sentinels so per-call default arguments don't allocate.
+	// Anything assigned EMPTY_EXCLUSIONS / DEFAULT_EXCLUDE_VALUES must NOT
+	// be mutated -- the dispatchers below treat them as immutable.
+	private static final EMPTY_EXCLUSIONS:Array<String> = [];
+	private static final DEFAULT_EXCLUDE_VALUES:Array<Dynamic> = [LuaUtils.Function_Continue];
+
 	public function callOnScripts(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null,
 			excludeValues:Array<Dynamic> = null):Dynamic {
 		var returnVal:Dynamic = LuaUtils.Function_Continue;
 		if (args == null)
 			args = [];
 		if (exclusions == null)
-			exclusions = [];
+			exclusions = EMPTY_EXCLUSIONS;
 		if (excludeValues == null)
-			excludeValues = [LuaUtils.Function_Continue];
+			excludeValues = DEFAULT_EXCLUDE_VALUES;
 
 		var result:Dynamic = callOnLuas(funcToCall, args, ignoreStops, exclusions, excludeValues);
 		if (result == null || excludeValues.contains(result))
@@ -3425,13 +3431,14 @@ class PlayState extends MusicBeatState {
 		if (args == null)
 			args = [];
 		if (exclusions == null)
-			exclusions = [];
+			exclusions = EMPTY_EXCLUSIONS;
 		if (excludeValues == null)
-			excludeValues = [LuaUtils.Function_Continue];
+			excludeValues = DEFAULT_EXCLUDE_VALUES;
 
-		var arr:Array<FunkinLua> = [];
+		var arr:Array<FunkinLua> = null;
 		for (script in luaArray) {
 			if (script.closed) {
+				if (arr == null) arr = [];
 				arr.push(script);
 				continue;
 			}
@@ -3450,11 +3457,13 @@ class PlayState extends MusicBeatState {
 			if (myValue != null && !excludeValues.contains(myValue))
 				returnVal = myValue;
 
-			if (script.closed)
+			if (script.closed) {
+				if (arr == null) arr = [];
 				arr.push(script);
+			}
 		}
 
-		if (arr.length > 0)
+		if (arr != null)
 			for (script in arr)
 				luaArray.remove(script);
 		#end
@@ -3467,10 +3476,11 @@ class PlayState extends MusicBeatState {
 
 		#if HSCRIPT_ALLOWED
 		if (exclusions == null)
-			exclusions = new Array();
+			exclusions = EMPTY_EXCLUSIONS;
 		if (excludeValues == null)
-			excludeValues = new Array();
-		excludeValues.push(LuaUtils.Function_Continue);
+			excludeValues = DEFAULT_EXCLUDE_VALUES;
+		else if (!excludeValues.contains(LuaUtils.Function_Continue))
+			excludeValues.push(LuaUtils.Function_Continue);
 
 		var len:Int = hscriptArray.length;
 		if (len < 1)
@@ -3503,7 +3513,7 @@ class PlayState extends MusicBeatState {
 
 	public function setOnScripts(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
 		if (exclusions == null)
-			exclusions = [];
+			exclusions = EMPTY_EXCLUSIONS;
 		setOnLuas(variable, arg, exclusions);
 		setOnHScript(variable, arg, exclusions);
 	}
@@ -3511,7 +3521,7 @@ class PlayState extends MusicBeatState {
 	public function setOnLuas(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
 		#if LUA_ALLOWED
 		if (exclusions == null)
-			exclusions = [];
+			exclusions = EMPTY_EXCLUSIONS;
 		for (script in luaArray) {
 			if (exclusions.contains(script.scriptName))
 				continue;
@@ -3524,7 +3534,7 @@ class PlayState extends MusicBeatState {
 	public function setOnHScript(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
 		#if HSCRIPT_ALLOWED
 		if (exclusions == null)
-			exclusions = [];
+			exclusions = EMPTY_EXCLUSIONS;
 		for (script in hscriptArray) {
 			if (exclusions.contains(script.origin))
 				continue;
