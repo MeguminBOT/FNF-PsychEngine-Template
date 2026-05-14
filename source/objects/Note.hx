@@ -145,7 +145,8 @@ class Note extends FlxSprite {
 	function get_hitsoundVolume():Float {
 		if (ClientPrefs.data.hitsoundVolume > 0)
 			return ClientPrefs.data.hitsoundVolume;
-		return hitsoundForce ? hitsoundVolume : 0.0;
+		// @:bypassAccessor avoids re-entering this getter recursively
+		return hitsoundForce ? @:bypassAccessor this.hitsoundVolume : 0.0;
 	}
 
 	public var hitsound:String = 'hitsound';
