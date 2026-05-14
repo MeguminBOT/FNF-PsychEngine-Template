@@ -75,6 +75,9 @@ class StageData {
 	}
 
 	public static function getStageFile(stage:String):StageFile {
+		// Previously had `try { ... }` with no catch -- exceptions propagated
+		// up instead of falling through to dummy(). Added catch so a malformed
+		// stage JSON now returns the dummy instead of crashing.
 		try {
 			var path:String = Paths.getPath('stages/' + stage + '.json', TEXT, null, true);
 			#if MODS_ALLOWED
@@ -84,6 +87,8 @@ class StageData {
 			if (Assets.exists(path))
 				return cast tjson.TJSON.parse(Assets.getText(path));
 			#end
+		} catch (e:Dynamic) {
+			trace('StageData: failed to load stage "$stage": $e');
 		}
 		return dummy();
 	}
