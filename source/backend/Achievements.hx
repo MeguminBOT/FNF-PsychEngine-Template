@@ -111,6 +111,12 @@ class Achievements {
 
 		if (achievements.exists(name)) {
 			var achievement:Achievement = achievements.get(name);
+			// GET must work for any achievement (including non-score ones).
+			// The previous unconditional maxScore check crashed reads of
+			// e.g. one-shot unlock achievements like 'friday_night_play'.
+			if (mode == GET)
+				return variables.get(name);
+
 			if (achievement.maxScore < 1)
 				throw new Exception('Achievement has score disabled or is incorrectly configured: $name');
 
@@ -119,8 +125,6 @@ class Achievements {
 
 			var val = addOrSet;
 			switch (mode) {
-				case GET:
-					return variables.get(name); // get
 				case ADD:
 					val += variables.get(name); // add
 				default:
@@ -237,7 +241,9 @@ class Achievements {
 					for (i in 0...retVal.length) {
 						var achieve:Dynamic = retVal[i];
 						if (achieve == null) {
-							var errorTitle = 'Mod name: ' + Mods.currentModDirectory != null ? Mods.currentModDirectory : "None";
+							// Operator precedence bug -- without parens this parsed as
+							// `('Mod name: ' + dir) != null ? dir : "None"`, dropping the prefix.
+							var errorTitle = 'Mod name: ' + (Mods.currentModDirectory != null ? Mods.currentModDirectory : "None");
 							var errorMsg = 'Achievement #${i + 1} is invalid.';
 							#if windows
 							lime.app.Application.current.window.alert(errorMsg, errorTitle);
@@ -264,7 +270,7 @@ class Achievements {
 					}
 				}
 			} catch (e:Dynamic) {
-				var errorTitle = 'Mod name: ' + Mods.currentModDirectory != null ? Mods.currentModDirectory : "None";
+				var errorTitle = 'Mod name: ' + (Mods.currentModDirectory != null ? Mods.currentModDirectory : "None");
 				var errorMsg = 'Error loading achievements.json: $e';
 				#if windows
 				lime.app.Application.current.window.alert(errorMsg, errorTitle);
