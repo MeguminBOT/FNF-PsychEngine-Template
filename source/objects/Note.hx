@@ -179,7 +179,7 @@ class Note extends FlxSprite {
 		if (PlayState.isPixelStage)
 			arr = ClientPrefs.data.arrowRGBPixel[noteData];
 
-		if (arr != null && noteData > -1 && noteData <= arr.length) {
+		if (arr != null && noteData > -1 && noteData < arr.length) {
 			rgbShader.r = arr[0];
 			rgbShader.g = arr[1];
 			rgbShader.b = arr[2];
