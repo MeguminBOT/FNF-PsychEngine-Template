@@ -1586,8 +1586,8 @@ class FunkinLua {
 			Lua.getglobal(lua, func);
 			var type:Int = Lua.type(lua, -1);
 
-			if (type != Lua.LUA_TFUNCTION) {
-				if (type > Lua.LUA_TNIL)
+			if (type != Lua.TFUNCTION) {
+				if (type > Lua.TNIL)
 					luaTrace("ERROR (" + func + "): attempt to call a " + LuaUtils.typeToString(type) + " value", false, false, FlxColor.RED);
 
 				Lua.pop(lua, 1);
@@ -1599,7 +1599,7 @@ class FunkinLua {
 			var status:Int = Lua.pcall(lua, args.length, 1, 0);
 
 			// Checks if it's not successful, then show a error.
-			if (status != Lua.LUA_OK) {
+			if (status != Lua.OK) {
 				var error:String = getErrorMessage(status);
 				luaTrace("ERROR (" + func + "): " + error, false, false, FlxColor.RED);
 				return LuaUtils.Function_Continue;
@@ -1754,14 +1754,9 @@ class FunkinLua {
 		if (v != null)
 			v = v.trim();
 		if (v == null || v == "") {
-			switch (status) {
-				case Lua.LUA_ERRRUN:
-					return "Runtime Error";
-				case Lua.LUA_ERRMEM:
-					return "Memory Allocation Error";
-				case Lua.LUA_ERRERR:
-					return "Critical Error";
-			}
+			if (status == Lua.ERRRUN) return "Runtime Error";
+			if (status == Lua.ERRMEM) return "Memory Allocation Error";
+			if (status == Lua.ERRERR) return "Critical Error";
 			return "Unknown Error";
 		}
 

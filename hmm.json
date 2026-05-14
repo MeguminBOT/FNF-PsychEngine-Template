@@ -89,11 +89,18 @@
 			"dir": null
 		},
 		{
-			"name": "linc_luajit",
+			"name": "hxluajit",
 			"type": "git",
 			"dir": null,
 			"ref": "main",
-			"url": "https://github.com/superpowers04/linc_luajit"
+			"url": "https://github.com/MAJigsaw77/hxluajit"
+		},
+		{
+			"name": "hxluajit-wrapper",
+			"type": "git",
+			"dir": null,
+			"ref": "main",
+			"url": "https://github.com/MAJigsaw77/hxluajit-wrapper"
 		},
 		{
 			"name": "tink_core",

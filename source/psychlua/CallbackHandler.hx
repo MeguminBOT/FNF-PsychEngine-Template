@@ -1,23 +1,37 @@
 #if LUA_ALLOWED
 package psychlua;
 
+import hxluajit.Lua;
+import hxluajit.LuaL;
+import hxluajit.Types;
+import llua.Convert;
+import llua.Lua_helper;
+
+/**
+ * C-callable dispatcher for every Lua-exposed Haxe function.
+ *
+ * Each call site registered via `Lua_helper.add_callback` pushes a closure
+ * with the callback name as upvalue 1 and points at this function. The
+ * dispatcher then looks the name up first in the global
+ * `Lua_helper.callbacks` map, then falls back to the `lastCalledScript`'s
+ * per-instance `callbacks` map (set by `FunkinLua.addLocalCallback`),
+ * and finally scans every running script's `callbacks` map for one whose
+ * `lua` state pointer matches.
+ */
 class CallbackHandler {
-	public static inline function call(l:State, fname:String):Int {
+	public static function call(L:cpp.RawPointer<Lua_State>):Int {
+		final fname:String = Lua.tostring(L, Lua.upvalueindex(1));
+
 		try {
-			// trace('calling $fname');
 			var cbf:Dynamic = Lua_helper.callbacks.get(fname);
 
-			// Local functions have the lowest priority
-			// This is to prevent a "for" loop being called in every single operation,
-			// so that it only loops on reserved/special functions
+			// Local functions have the lowest priority -- only loop through
+			// scripts when no global callback owns the name.
 			if (cbf == null) {
-				// trace('checking last script');
-				var last:FunkinLua = FunkinLua.lastCalledScript;
-				if (last == null || last.lua != l) {
-					// trace('looping thru scripts');
+				final last:FunkinLua = FunkinLua.lastCalledScript;
+				if (last == null || last.lua != L) {
 					for (script in PlayState.instance.luaArray)
-						if (script != FunkinLua.lastCalledScript && script != null && script.lua == l) {
-							// trace('found script');
+						if (script != FunkinLua.lastCalledScript && script != null && script.lua == L) {
 							cbf = script.callbacks.get(fname);
 							break;
 						}
@@ -28,25 +42,21 @@ class CallbackHandler {
 			if (cbf == null)
 				return 0;
 
-			var nparams:Int = Lua.gettop(l);
-			var args:Array<Dynamic> = [];
+			final nparams:Int = Lua.gettop(L);
+			final args:Array<Dynamic> = [];
 
-			for (i in 0...nparams) {
-				args[i] = Convert.fromLua(l, i + 1);
-			}
+			for (i in 0...nparams)
+				args[i] = Convert.fromLua(L, i + 1);
 
-			var ret:Dynamic = null;
-			/* return the number of results */
-
-			ret = Reflect.callMethod(null, cbf, args);
+			final ret:Dynamic = Reflect.callMethod(null, cbf, args);
 
 			if (ret != null) {
-				Convert.toLua(l, ret);
+				Convert.toLua(L, ret);
 				return 1;
 			}
 		} catch (e:haxe.Exception) {
 			if (Lua_helper.sendErrorsToLua) {
-				LuaL.error(l, 'CALLBACK ERROR! ${e.details()}');
+				LuaL.error(L, '%s', 'CALLBACK ERROR! ${e.details()}');
 				return 0;
 			}
 			throw e;
