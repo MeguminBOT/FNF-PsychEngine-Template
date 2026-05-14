@@ -229,22 +229,28 @@ class ExtraFunctions {
 
 		// Randomization
 		Lua_helper.add_callback(lua, "getRandomInt", function(min:Int, max:Int = FlxMath.MAX_VALUE_INT, exclude:String = '') {
-			var excludeArray:Array<String> = exclude.split(',');
 			var toExclude:Array<Int> = [];
-			for (i in 0...excludeArray.length) {
-				if (exclude == '')
-					break;
-				toExclude.push(Std.parseInt(excludeArray[i].trim()));
+			if (exclude.length > 0) {
+				var excludeArray:Array<String> = exclude.split(',');
+				for (i in 0...excludeArray.length) {
+					var trimmed:String = excludeArray[i].trim();
+					if (trimmed.length == 0) continue;
+					var parsed:Null<Int> = Std.parseInt(trimmed);
+					if (parsed != null) toExclude.push(parsed);
+				}
 			}
 			return FlxG.random.int(min, max, toExclude);
 		});
 		Lua_helper.add_callback(lua, "getRandomFloat", function(min:Float, max:Float = 1, exclude:String = '') {
-			var excludeArray:Array<String> = exclude.split(',');
 			var toExclude:Array<Float> = [];
-			for (i in 0...excludeArray.length) {
-				if (exclude == '')
-					break;
-				toExclude.push(Std.parseFloat(excludeArray[i].trim()));
+			if (exclude.length > 0) {
+				var excludeArray:Array<String> = exclude.split(',');
+				for (i in 0...excludeArray.length) {
+					var trimmed:String = excludeArray[i].trim();
+					if (trimmed.length == 0) continue;
+					var parsed:Float = Std.parseFloat(trimmed);
+					if (!Math.isNaN(parsed)) toExclude.push(parsed);
+				}
 			}
 			return FlxG.random.float(min, max, toExclude);
 		});
