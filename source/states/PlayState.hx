@@ -1761,8 +1761,9 @@ class PlayState extends MusicBeatState {
 				notes.insert(0, dunceNote);
 				dunceNote.spawned = true;
 
+				// dunceNote was just inserted at index 0; no need to indexOf.
 				callOnLuas('onSpawnNote', [
-					notes.members.indexOf(dunceNote),
+					0,
 					dunceNote.noteData,
 					dunceNote.noteType,
 					dunceNote.isSustainNote,
@@ -1770,8 +1771,8 @@ class PlayState extends MusicBeatState {
 				]);
 				callOnHScript('onSpawnNote', [dunceNote]);
 
-				var index:Int = unspawnNotes.indexOf(dunceNote);
-				unspawnNotes.splice(index, 1);
+				// dunceNote == unspawnNotes[0]; shift is O(n) but skips an indexOf scan.
+				unspawnNotes.shift();
 			}
 		}
 
