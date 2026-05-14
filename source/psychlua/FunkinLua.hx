@@ -1269,13 +1269,13 @@ class FunkinLua {
 				} else
 					luaTrace('startDialogue: Your dialogue file is badly formatted!', false, false, FlxColor.RED);
 			}
-		else {
-			luaTrace('startDialogue: Dialogue file not found', false, false, FlxColor.RED);
-			if (game.endingSong)
-				game.endSong();
-			else
-				game.startCountdown();
-		}
+			else {
+				luaTrace('startDialogue: Dialogue file not found', false, false, FlxColor.RED);
+				if (game.endingSong)
+					game.endSong();
+				else
+					game.startCountdown();
+			}
 			return false;
 		});
 		Lua_helper.add_callback(lua, "startVideo",
