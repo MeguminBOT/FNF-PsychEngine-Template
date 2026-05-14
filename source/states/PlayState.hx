@@ -2542,6 +2542,31 @@ class PlayState extends MusicBeatState {
 			Paths.image(uiFolder + 'num' + i + uiPostfix);
 	}
 
+	// Pool of FlxSprite objects recycled across popUpScore() calls.
+	// popUpScore used to allocate 3-5 fresh sprites per hit (rating + combo
+	// + 3+ digit numbers) and tween-then-destroy them. Now we acquire from
+	// the pool, configure, and release on tween-complete (or eagerly when
+	// comboStacking is off and a new popup wipes the previous one).
+	private var _popupPool:Array<FlxSprite> = [];
+
+	inline function acquirePopupSprite():FlxSprite {
+		final s:FlxSprite = (_popupPool.length > 0 ? _popupPool.pop() : new FlxSprite());
+		s.revive();
+		s.alpha = 1;
+		s.scale.set(1, 1);
+		s.offset.set(0, 0);
+		s.angle = 0;
+		return s;
+	}
+
+	function releasePopupSprite(spr:FlxSprite):Void {
+		if (spr == null) return;
+		FlxTween.cancelTweensOf(spr);
+		if (comboGroup != null) comboGroup.remove(spr, true);
+		spr.kill();
+		_popupPool.push(spr);
+	}
+
 	private function popUpScore(note:Note = null):Void {
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset);
 		vocals.volume = 1;
@@ -2553,13 +2578,12 @@ class PlayState extends MusicBeatState {
 				var spr = comboGroup.members[i];
 				if (spr == null)
 					continue;
-				comboGroup.remove(spr, true);
-				spr.destroy();
+				releasePopupSprite(spr);
 			}
 		}
 
 		var placement:Float = FlxG.width * 0.35;
-		var rating:FlxSprite = new FlxSprite();
+		var rating:FlxSprite = acquirePopupSprite();
 		var score:Int = 350;
 
 		// tryna do MS based judgment due to popular demand
@@ -2603,7 +2627,8 @@ class PlayState extends MusicBeatState {
 		rating.y -= ClientPrefs.data.comboOffset[1];
 		rating.antialiasing = antialias;
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiFolder + 'combo' + uiPostfix));
+		var comboSpr:FlxSprite = acquirePopupSprite();
+		comboSpr.loadGraphic(Paths.image(uiFolder + 'combo' + uiPostfix));
 		comboSpr.screenCenter();
 		comboSpr.x = placement;
 		comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
@@ -2634,7 +2659,8 @@ class PlayState extends MusicBeatState {
 
 		var separatedScore:String = Std.string(combo).lpad('0', 3);
 		for (i in 0...separatedScore.length) {
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiFolder + 'num' + Std.parseInt(separatedScore.charAt(i)) + uiPostfix));
+			var numScore:FlxSprite = acquirePopupSprite();
+			numScore.loadGraphic(Paths.image(uiFolder + 'num' + Std.parseInt(separatedScore.charAt(i)) + uiPostfix));
 			numScore.screenCenter();
 			numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
 			numScore.y += 80 - ClientPrefs.data.comboOffset[3];
@@ -2657,7 +2683,7 @@ class PlayState extends MusicBeatState {
 
 			FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
 				onComplete: function(tween:FlxTween) {
-					numScore.destroy();
+					releasePopupSprite(numScore);
 				},
 				startDelay: Conductor.crochet * 0.002 / playbackRate
 			});
@@ -2668,13 +2694,15 @@ class PlayState extends MusicBeatState {
 		}
 		comboSpr.x = xThing + 50;
 		FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
+			onComplete: function(tween:FlxTween) {
+				releasePopupSprite(rating);
+			},
 			startDelay: Conductor.crochet * 0.001 / playbackRate
 		});
 
 		FlxTween.tween(comboSpr, {alpha: 0}, 0.2 / playbackRate, {
 			onComplete: function(tween:FlxTween) {
-				comboSpr.destroy();
-				rating.destroy();
+				releasePopupSprite(comboSpr);
 			},
 			startDelay: Conductor.crochet * 0.002 / playbackRate
 		});
