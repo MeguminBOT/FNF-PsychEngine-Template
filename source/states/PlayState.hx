@@ -2299,7 +2299,10 @@ class PlayState extends MusicBeatState {
 				FlxG.sound.play(Paths.sound(value1), flValue2);
 		}
 
-		stagesFunc(function(stage:BaseStage) stage.eventCalled(eventName, value1, value2, flValue1, flValue2, strumTime));
+		// inline stagesFunc to avoid closure allocation in event hot path
+		for (stage in stages)
+			if (stage != null && stage.exists && stage.active)
+				stage.eventCalled(eventName, value1, value2, flValue1, flValue2, strumTime);
 		callOnScripts('onEvent', [eventName, value1, value2, strumTime]);
 	}
 
@@ -2916,7 +2919,10 @@ class PlayState extends MusicBeatState {
 		});
 
 		noteMissCommon(daNote.noteData, daNote);
-		stagesFunc(function(stage:BaseStage) stage.noteMiss(daNote));
+		// inline stagesFunc -- per-miss hot path
+		for (stage in stages)
+			if (stage != null && stage.exists && stage.active)
+				stage.noteMiss(daNote);
 		var result:Dynamic = callOnLuas('noteMiss', [
 			notes.members.indexOf(daNote),
 			daNote.noteData,
@@ -2934,7 +2940,9 @@ class PlayState extends MusicBeatState {
 
 		noteMissCommon(direction);
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
-		stagesFunc(function(stage:BaseStage) stage.noteMissPress(direction));
+		for (stage in stages)
+			if (stage != null && stage.exists && stage.active)
+				stage.noteMissPress(direction);
 		callOnScripts('noteMissPress', [direction]);
 	}
 
@@ -3067,7 +3075,9 @@ class PlayState extends MusicBeatState {
 		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
 		note.hitByOpponent = true;
 
-		stagesFunc(function(stage:BaseStage) stage.opponentNoteHit(note));
+		for (stage in stages)
+			if (stage != null && stage.exists && stage.active)
+				stage.opponentNoteHit(note);
 		var result:Dynamic = callOnLuas('opponentNoteHit', [
 			notes.members.indexOf(note),
 			Math.abs(note.noteData),
@@ -3175,7 +3185,9 @@ class PlayState extends MusicBeatState {
 				spawnNoteSplashOnNote(note);
 		}
 
-		stagesFunc(function(stage:BaseStage) stage.goodNoteHit(note));
+		for (stage in stages)
+			if (stage != null && stage.exists && stage.active)
+				stage.goodNoteHit(note);
 		var result:Dynamic = callOnLuas('goodNoteHit', [notes.members.indexOf(note), leData, leType, isSus]);
 		if (result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll)
 			callOnHScript('goodNoteHit', [note]);

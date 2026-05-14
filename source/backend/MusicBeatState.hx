@@ -182,19 +182,22 @@ class MusicBeatState extends FlxState {
 
 	public function beatHit():Void {
 		// trace('Beat: ' + curBeat);
-		stagesFunc(function(stage:BaseStage) {
+		// inline stagesFunc -- per-beat hot path
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.curBeat = curBeat;
 			stage.curDecBeat = curDecBeat;
 			stage.beatHit();
-		});
+		}
 	}
 
 	public function sectionHit():Void {
 		// trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
-		stagesFunc(function(stage:BaseStage) {
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.curSection = curSection;
 			stage.sectionHit();
-		});
+		}
 	}
 
 	function stagesFunc(func:BaseStage->Void) {
