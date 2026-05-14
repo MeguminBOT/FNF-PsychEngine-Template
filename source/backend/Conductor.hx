@@ -132,6 +132,6 @@ class Conductor {
 		crochet = calculateCrochet(bpm);
 		stepCrochet = crochet / 4;
 
-		return bpm = newBPM;
+		return bpm;
 	}
 }
