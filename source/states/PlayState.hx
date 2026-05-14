@@ -2824,42 +2824,64 @@ class PlayState extends MusicBeatState {
 		return v == null ? -1 : v;
 	}
 
+	// Reusable per-frame buffers for keysCheck. Sized to keysArray once.
+	private var _holdArray:Array<Bool> = null;
+	private var _pressArray:Array<Bool> = null;
+	private var _releaseArray:Array<Bool> = null;
+
 	// Hold notes
 	private function keysCheck():Void {
-		// HOLDING
-		var holdArray:Array<Bool> = [];
-		var pressArray:Array<Bool> = [];
-		var releaseArray:Array<Bool> = [];
-		for (key in keysArray) {
-			holdArray.push(controls.pressed(key));
-			pressArray.push(controls.justPressed(key));
-			releaseArray.push(controls.justReleased(key));
+		final keys = keysArray;
+		final klen = keys.length;
+
+		var holdArray = _holdArray;
+		var pressArray = _pressArray;
+		var releaseArray = _releaseArray;
+		if (holdArray == null || holdArray.length != klen) {
+			holdArray = _holdArray = [for (_ in 0...klen) false];
+			pressArray = _pressArray = [for (_ in 0...klen) false];
+			releaseArray = _releaseArray = [for (_ in 0...klen) false];
+		}
+
+		final ctrl = controls;
+		var anyHeld:Bool = false;
+		var anyPressed:Bool = false;
+		var anyReleased:Bool = false;
+		for (i in 0...klen) {
+			final k = keys[i];
+			final h = ctrl.pressed(k);
+			final p = ctrl.justPressed(k);
+			final r = ctrl.justReleased(k);
+			holdArray[i] = h;
+			pressArray[i] = p;
+			releaseArray[i] = r;
+			if (h) anyHeld = true;
+			if (p) anyPressed = true;
+			if (r) anyReleased = true;
 		}
 
 		// TO DO: Find a better way to handle controller inputs, this should work for now
-		if (controls.controllerMode && pressArray.contains(true))
-			for (i in 0...pressArray.length)
+		if (ctrl.controllerMode && anyPressed)
+			for (i in 0...klen)
 				if (pressArray[i] && strumsBlocked[i] != true)
 					keyPressed(i);
 
 		if (startedCountdown && !inCutscene && !boyfriend.stunned && generatedMusic) {
 			if (notes.length > 0) {
-				for (n in notes) { // I can't do a filter here, that's kinda awesome
-					var canHit:Bool = (n != null && !strumsBlocked[n.noteData] && n.canBeHit && n.mustPress && !n.tooLate && !n.wasGoodHit && !n.blockHit);
-
-					if (guitarHeroSustains)
-						canHit = canHit && n.parent != null && n.parent.wasGoodHit;
-
-					if (canHit && n.isSustainNote) {
-						var released:Bool = !holdArray[n.noteData];
-
-						if (!released)
-							goodNoteHit(n);
-					}
+				final members = notes.members;
+				final mlen = members.length;
+				final ghSus = guitarHeroSustains;
+				for (mi in 0...mlen) {
+					final n = members[mi];
+					if (n == null) continue;
+					if (strumsBlocked[n.noteData] || !n.canBeHit || !n.mustPress || n.tooLate || n.wasGoodHit || n.blockHit) continue;
+					if (ghSus && (n.parent == null || !n.parent.wasGoodHit)) continue;
+					if (n.isSustainNote && holdArray[n.noteData])
+						goodNoteHit(n);
 				}
 			}
 
-			if (!holdArray.contains(true) || endingSong)
+			if (!anyHeld || endingSong)
 				playerDance();
 
 			#if ACHIEVEMENTS_ALLOWED
@@ -2869,10 +2891,17 @@ class PlayState extends MusicBeatState {
 		}
 
 		// TO DO: Find a better way to handle controller inputs, this should work for now
-		if ((controls.controllerMode || strumsBlocked.contains(true)) && releaseArray.contains(true))
-			for (i in 0...releaseArray.length)
+		if (anyReleased && (ctrl.controllerMode || anyStrumBlocked()))
+			for (i in 0...klen)
 				if (releaseArray[i] || strumsBlocked[i] == true)
 					keyReleased(i);
+	}
+
+	function anyStrumBlocked():Bool {
+		final sb = strumsBlocked;
+		final len = sb.length;
+		for (i in 0...len) if (sb[i] == true) return true;
+		return false;
 	}
 
 	function noteMiss(daNote:Note):Void { // You didn't hit the key and let it go offscreen, also used by Hurt Notes
