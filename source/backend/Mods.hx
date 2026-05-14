@@ -148,11 +148,24 @@ class Mods {
 		return null;
 	}
 
-	public static var updatedOnState:Bool = false;
+	public static var updatedOnState(default, set):Bool = false;
+	private static var cachedList:ModsList = null;
 
-	inline public static function parseList():ModsList {
+	private static function set_updatedOnState(value:Bool):Bool {
+		if (!value) cachedList = null; // state-transition: drop the cache
+		return updatedOnState = value;
+	}
+
+	public static function parseList():ModsList {
 		if (!updatedOnState)
 			updateModList();
+
+		// updateModList sets updatedOnState=true (and clears the cache when
+		// it rewrites the file) so anything beyond this point is safe to
+		// hand back the cached parse.
+		if (cachedList != null)
+			return cachedList;
+
 		var list:ModsList = {enabled: [], disabled: [], all: []};
 
 		#if MODS_ALLOWED
@@ -173,6 +186,7 @@ class Mods {
 			trace(e);
 		}
 		#end
+		cachedList = list;
 		return list;
 	}
 
@@ -219,6 +233,7 @@ class Mods {
 		}
 
 		File.saveContent('modsList.txt', fileStr);
+		cachedList = null; // file just changed -- force a reparse next call
 		updatedOnState = true;
 		// trace('Saved modsList.txt');
 		#end
