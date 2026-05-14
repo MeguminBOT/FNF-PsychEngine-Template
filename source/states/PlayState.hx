@@ -257,6 +257,11 @@ class PlayState extends MusicBeatState {
 
 	public var introSoundsSuffix:String = '';
 
+	// Cache of last values pushed to scripts every frame so that we don't pay
+	// for an O(scripts) reflective set when the value hasn't actually changed.
+	private var _lastSentDecStep:Float = Math.NEGATIVE_INFINITY;
+	private var _lastSentDecBeat:Float = Math.NEGATIVE_INFINITY;
+
 	// Less laggy controls
 	private var keysArray:Array<String>;
 
@@ -1674,8 +1679,14 @@ class PlayState extends MusicBeatState {
 
 		super.update(elapsed);
 
-		setOnScripts('curDecStep', curDecStep);
-		setOnScripts('curDecBeat', curDecBeat);
+		if (curDecStep != _lastSentDecStep) {
+			_lastSentDecStep = curDecStep;
+			setOnScripts('curDecStep', curDecStep);
+		}
+		if (curDecBeat != _lastSentDecBeat) {
+			_lastSentDecBeat = curDecBeat;
+			setOnScripts('curDecBeat', curDecBeat);
+		}
 
 		if (botplayTxt != null && botplayTxt.visible) {
 			botplaySine += 180 * elapsed;
