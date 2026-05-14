@@ -20,7 +20,16 @@ class FPSCounter extends TextField {
 	**/
 	public var memoryMegas(get, never):Float;
 
+	// Ring buffer of frame timestamps. The old impl used Array.push +
+	// Array.shift each frame, where shift() is O(n) and reallocates the
+	// backing storage. With a fixed-size ring we get O(1) per frame and
+	// zero allocations once warm.
+	@:noCompletion private static inline var TIMES_CAPACITY:Int = 1024;
 	@:noCompletion private var times:Array<Float>;
+	@:noCompletion private var timesHead:Int = 0;
+	@:noCompletion private var timesCount:Int = 0;
+	@:noCompletion private var lastFPSValue:Int = -1;
+	@:noCompletion private var lastMemValue:Float = -1;
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000) {
 		super();
@@ -36,7 +45,7 @@ class FPSCounter extends TextField {
 		multiline = true;
 		text = "FPS: ";
 
-		times = [];
+		times = [for (i in 0...TIMES_CAPACITY) 0];
 	}
 
 	var deltaTimeout:Float = 0.0;
@@ -44,26 +53,49 @@ class FPSCounter extends TextField {
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void {
 		final now:Float = haxe.Timer.stamp() * 1000;
-		times.push(now);
-		while (times[0] < now - 1000)
-			times.shift();
+		final cap:Int = TIMES_CAPACITY;
+
+		// Push current timestamp; overwrite oldest if we'd overflow (only
+		// happens at sustained >1000 FPS, but be defensive).
+		if (timesCount < cap) {
+			times[(timesHead + timesCount) % cap] = now;
+			timesCount++;
+		} else {
+			times[timesHead] = now;
+			timesHead = (timesHead + 1) % cap;
+		}
+
+		// Drop entries older than 1000ms.
+		final cutoff:Float = now - 1000;
+		while (timesCount > 0 && times[timesHead] < cutoff) {
+			timesHead = (timesHead + 1) % cap;
+			timesCount--;
+		}
+
 		// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
 		if (deltaTimeout < 50) {
 			deltaTimeout += deltaTime;
 			return;
 		}
 
-		currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;
+		currentFPS = timesCount < FlxG.updateFramerate ? timesCount : FlxG.updateFramerate;
 		updateText();
 		deltaTimeout = 0.0;
 	}
 
 	public dynamic function updateText():Void { // so people can override it in hscript
-		text = 'FPS: ${currentFPS}' + '\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}';
+		// Skip text reassignment when nothing changed -- avoids a TextField
+		// invalidate + redraw on every refresh tick.
+		final mem:Float = memoryMegas;
+		if (currentFPS != lastFPSValue || mem != lastMemValue) {
+			lastFPSValue = currentFPS;
+			lastMemValue = mem;
+			text = 'FPS: ${currentFPS}' + '\nMemory: ${flixel.util.FlxStringUtil.formatBytes(mem)}';
+		}
 
-		textColor = 0xFFFFFFFF;
-		if (currentFPS < FlxG.drawFramerate * 0.5)
-			textColor = 0xFFFF0000;
+		final col:Int = (currentFPS < FlxG.drawFramerate * 0.5) ? 0xFFFF0000 : 0xFFFFFFFF;
+		if (textColor != col)
+			textColor = col;
 	}
 
 	inline function get_memoryMegas():Float
