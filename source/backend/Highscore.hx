@@ -74,26 +74,20 @@ class Highscore {
 
 	public static function getScore(song:String, diff:Int):Int {
 		var daSong:String = formatSong(song, diff);
-		if (!songScores.exists(daSong))
-			setScore(daSong, 0);
-
-		return songScores.get(daSong);
+		// Don't flush a 0 to disk just for a UI lookup -- the old code called
+		// setScore(..., 0) which triggers FlxG.save.flush() (sync disk I/O).
+		// Just return 0 for unseen songs; the entry is created on actual save.
+		return songScores.exists(daSong) ? songScores.get(daSong) : 0;
 	}
 
 	public static function getRating(song:String, diff:Int):Float {
 		var daSong:String = formatSong(song, diff);
-		if (!songRating.exists(daSong))
-			setRating(daSong, 0);
-
-		return songRating.get(daSong);
+		return songRating.exists(daSong) ? songRating.get(daSong) : 0;
 	}
 
 	public static function getWeekScore(week:String, diff:Int):Int {
 		var daWeek:String = formatSong(week, diff);
-		if (!weekScores.exists(daWeek))
-			setWeekScore(daWeek, 0);
-
-		return weekScores.get(daWeek);
+		return weekScores.exists(daWeek) ? weekScores.get(daWeek) : 0;
 	}
 
 	public static function load():Void {
