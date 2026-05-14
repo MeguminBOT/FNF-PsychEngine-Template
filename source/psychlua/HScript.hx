@@ -208,7 +208,7 @@ class HScript extends Iris {
 		set('keyboardReleased', function(name:String) return Reflect.getProperty(FlxG.keys.justReleased, name));
 
 		set('anyGamepadJustPressed', function(name:String) return FlxG.gamepads.anyJustPressed(name));
-		set('anyGamepadPressed', function(name:String) FlxG.gamepads.anyPressed(name));
+		set('anyGamepadPressed', function(name:String) return FlxG.gamepads.anyPressed(name));
 		set('anyGamepadReleased', function(name:String) return FlxG.gamepads.anyJustReleased(name));
 
 		set('gamepadAnalogX', function(id:Int, ?leftStick:Bool = true) {
