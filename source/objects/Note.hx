@@ -83,6 +83,14 @@ class Note extends FlxSprite {
 
 	public static var globalRgbShaders:Array<RGBPalette> = [];
 
+	// Per-song dedupe set for hitsound precaching. set_noteType used to
+	// call Paths.sound(hitsound) for every note that referenced a custom
+	// hitsound -- with hundreds of notes per chart that's hundreds of
+	// string formats + Map.exists checks + localTrackedAssets pushes
+	// for the same handful of unique sounds. PlayState resets this on
+	// create() so memory doesn't accumulate across songs.
+	public static var precachedHitsounds:Map<String, Bool> = new Map();
+
 	public var inEditor:Bool = false;
 
 	public var animSuffix:String = '';
@@ -228,8 +236,10 @@ class Note extends FlxSprite {
 			}
 			if (value != null && value.length > 1)
 				NoteTypesConfig.applyNoteTypeData(this, value);
-			if (hitsound != 'hitsound' && hitsoundVolume > 0)
+			if (hitsound != 'hitsound' && hitsoundVolume > 0 && !precachedHitsounds.exists(hitsound)) {
+				precachedHitsounds.set(hitsound, true);
 				Paths.sound(hitsound); // precache new sound for being idiot-proof
+			}
 			noteType = value;
 		}
 		return value;

@@ -301,6 +301,11 @@ class PlayState extends MusicBeatState {
 		keysArray = ['note_left', 'note_down', 'note_up', 'note_right'];
 		rebuildKeyToStrumMap();
 
+		// Reset Note's per-song hitsound dedupe set so the next song
+		// re-precaches its own custom hitsounds (and we don't hold
+		// references to last song's that might have been freed).
+		Note.precachedHitsounds = new Map();
+
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
