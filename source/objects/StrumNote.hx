@@ -76,10 +76,14 @@ class StrumNote extends FlxSprite {
 			lastAnim = animation.curAnim.name;
 
 		if (PlayState.isPixelStage) {
-			loadGraphic(Paths.image('pixelUI/' + texture));
+			// Cache the pixel atlas reference -- the previous code called
+			// Paths.image() twice for the exact same texture key, which
+			// triggers a redundant cache lookup and graphic decode.
+			final pixelGraphic = Paths.image('pixelUI/' + texture);
+			loadGraphic(pixelGraphic);
 			width = width / 4;
 			height = height / 5;
-			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
+			loadGraphic(pixelGraphic, true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
