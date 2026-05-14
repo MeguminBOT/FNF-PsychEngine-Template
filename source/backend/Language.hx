@@ -87,8 +87,9 @@ class Language {
 	}
 
 	#if TRANSLATIONS_ALLOWED
+	// Hoisted: previously rebuilt the EReg on every formatKey call.
+	static final hideChars:EReg = ~/[~&\\\/;:<>#.,'"%?!]/g;
 	inline static private function formatKey(key:String) {
-		final hideChars = ~/[~&\\\/;:<>#.,'"%?!]/g;
 		return hideChars.replace(key.replace(' ', '_'), '').toLowerCase().trim();
 	}
 	#end
