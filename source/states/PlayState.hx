@@ -2561,6 +2561,16 @@ class PlayState extends MusicBeatState {
 		s.scale.set(1, 1);
 		s.offset.set(0, 0);
 		s.angle = 0;
+		// popUpScore mutates velocity/acceleration with -= and += against the
+		// current value; without resetting these, every pool reuse carried
+		// over the previous popup's momentum and the sprite shot off-screen
+		// before the alpha tween could run. That looked like missing /
+		// laggy judgements. Reset all physics state to a fresh-sprite baseline.
+		s.velocity.set(0, 0);
+		s.acceleration.set(0, 0);
+		s.maxVelocity.set(10000, 10000);
+		s.drag.set(0, 0);
+		s.moves = true;
 		return s;
 	}
 
