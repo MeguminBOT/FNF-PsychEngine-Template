@@ -76,9 +76,11 @@ class MusicBeatState extends FlxState {
 		if (FlxG.save.data != null)
 			FlxG.save.data.fullscreen = FlxG.fullscreen;
 
-		stagesFunc(function(stage:BaseStage) {
+		// inline stagesFunc -- per-frame hot path; avoids closure capture of `elapsed`
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.update(elapsed);
-		});
+		}
 
 		super.update(elapsed);
 	}
