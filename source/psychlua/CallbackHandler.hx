@@ -19,6 +19,14 @@ import llua.Lua_helper;
  * `lua` state pointer matches.
  */
 class CallbackHandler {
+	// Reusable Array<Dynamic> pool for the args buffer passed to
+	// Reflect.callMethod. The dispatcher is reentrant (a Haxe callback
+	// can invoke a Lua function which calls another Haxe callback), so
+	// each level pops its own array off the pool and returns it after
+	// the call. Exception path skips the return -- the array is just
+	// GC'd, no correctness issue.
+	static final argPool:Array<Array<Dynamic>> = [];
+
 	public static function call(L:cpp.RawPointer<Lua_State>):Int {
 		final fname:String = Lua.tostring(L, Lua.upvalueindex(1));
 
@@ -46,12 +54,16 @@ class CallbackHandler {
 				return 0;
 
 			final nparams:Int = Lua.gettop(L);
-			final args:Array<Dynamic> = [];
+			final args:Array<Dynamic> = (argPool.length > 0 ? argPool.pop() : []);
+			if (args.length != nparams) args.resize(nparams);
 
 			for (i in 0...nparams)
 				args[i] = Convert.fromLua(L, i + 1);
 
 			final ret:Dynamic = Reflect.callMethod(null, cbf, args);
+
+			args.resize(0);
+			argPool.push(args);
 
 			if (ret != null) {
 				Convert.toLua(L, ret);
