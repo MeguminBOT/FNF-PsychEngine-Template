@@ -40,7 +40,11 @@ class StrumNote extends FlxSprite {
 		if (PlayState.isPixelStage)
 			arr = ClientPrefs.data.arrowRGBPixel[leData];
 
-		if (arr != null && leData < arr.length) {
+		// `arr` is the per-direction RGB triple ([r,g,b], length 3); the
+		// previous `leData < arr.length` guard rejected leData == 3 (right
+		// strum) and silently disabled its RGB shader. Validate the triple
+		// itself instead of comparing direction index against colour count.
+		if (arr != null && arr.length >= 3) {
 			@:bypassAccessor
 			{
 				rgbShader.r = arr[0];

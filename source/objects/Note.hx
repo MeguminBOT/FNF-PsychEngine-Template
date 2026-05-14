@@ -187,7 +187,11 @@ class Note extends FlxSprite {
 		if (PlayState.isPixelStage)
 			arr = ClientPrefs.data.arrowRGBPixel[noteData];
 
-		if (arr != null && noteData > -1 && noteData < arr.length) {
+		// `arr` is the per-direction RGB triple ([r,g,b], length 3); guarding
+		// `noteData < arr.length` rejected noteData == 3 (right arrow) and
+		// caused the right arrow to render with the fallback palette. Bound
+		// against the outer arrowRGB length and require the triple to be full.
+		if (arr != null && noteData > -1 && arr.length >= 3) {
 			rgbShader.r = arr[0];
 			rgbShader.g = arr[1];
 			rgbShader.b = arr[2];
