@@ -2526,11 +2526,13 @@ class PlayState extends MusicBeatState {
 		vocals.volume = 1;
 
 		if (!ClientPrefs.data.comboStacking && comboGroup.members.length > 0) {
-			for (spr in comboGroup) {
+			// Iterate backwards: comboGroup.remove() shifts members, which would skip entries on a forward iterator.
+			var i:Int = comboGroup.members.length;
+			while (--i >= 0) {
+				var spr = comboGroup.members[i];
 				if (spr == null)
 					continue;
-
-				comboGroup.remove(spr);
+				comboGroup.remove(spr, true);
 				spr.destroy();
 			}
 		}
