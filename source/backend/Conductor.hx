@@ -24,12 +24,12 @@ class Conductor {
 
 	public static function judgeNote(arr:Array<Rating>, diff:Float = 0):Rating // die
 	{
-		var data:Array<Rating> = arr;
-		for (i in 0...data.length - 1) // skips last window (Shit)
-			if (diff <= data[i].hitWindow)
-				return data[i];
+		final last:Int = arr.length - 1;
+		for (i in 0...last) // skips last window (Shit)
+			if (diff <= arr[i].hitWindow)
+				return arr[i];
 
-		return data[data.length - 1];
+		return arr[last];
 	}
 
 	public static function getCrotchetAtTime(time:Float) {
