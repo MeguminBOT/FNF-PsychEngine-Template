@@ -204,10 +204,25 @@ class Paths {
 
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 
+	// Build the cache key. When a parentFolder is supplied we prefix it so
+	// `image("foo")` and `image("foo", "songs")` no longer collide on the
+	// same cache slot. When no folder is given the key stays plain so
+	// existing callers (LoadingState.preloadGraphic, etc.) still match.
+	inline static function trackedKey(key:String, ?parentFolder:String):String
+		return parentFolder != null ? '$parentFolder:$key' : key;
+
 	static public function image(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxGraphic {
 		key = Language.getFileTranslation('images/$key') + '.png';
+		var trackKey:String = trackedKey(key, parentFolder);
 		var bitmap:BitmapData = null;
-		if (currentTrackedAssets.exists(key)) {
+		if (currentTrackedAssets.exists(trackKey)) {
+			localTrackedAssets.push(trackKey);
+			return currentTrackedAssets.get(trackKey);
+		}
+		// Compat fallback: a previous call with no parentFolder may have
+		// cached this image under the bare key. Honor that hit so mods that
+		// mix folder/no-folder calls don't double-load.
+		if (parentFolder != null && currentTrackedAssets.exists(key)) {
 			localTrackedAssets.push(key);
 			return currentTrackedAssets.get(key);
 		}
@@ -241,12 +256,13 @@ class Paths {
 			bitmap.readable = true;
 		}
 
-		var graph:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, false, key);
+		var trackKey:String = trackedKey(key, parentFolder);
+		var graph:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, false, trackKey);
 		graph.persist = true;
 		graph.destroyOnNoUse = false;
 
-		currentTrackedAssets.set(key, graph);
-		localTrackedAssets.push(key);
+		currentTrackedAssets.set(trackKey, graph);
+		localTrackedAssets.push(trackKey);
 		return graph;
 	}
 
