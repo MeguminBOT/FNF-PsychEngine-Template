@@ -112,7 +112,7 @@ class Mods {
 			// Then "PsychEngine/mods/" main folder
 			var folder:String = Paths.mods(fileToFind);
 			if (FileSystem.exists(folder) && !foldersToCheck.contains(folder))
-				foldersToCheck.push(Paths.mods(fileToFind));
+				foldersToCheck.push(folder);
 
 			// And lastly, the loaded mod's folder
 			if (Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0) {
