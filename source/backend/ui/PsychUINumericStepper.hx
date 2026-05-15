@@ -116,8 +116,11 @@ class PsychUINumericStepper extends PsychUIInputText {
 
 	function _updateValue() {
 		var txt:String = text.replace('%', '');
+		// Strip stray minus signs that aren't the leading character. Note that
+		// String.replace returns a new string -- the previous code discarded it,
+		// so inputs like "1-2" silently kept the dash and parsed wrong.
 		if (txt.indexOf('-') > 0)
-			txt.replace('-', '');
+			txt = txt.charAt(0) + txt.substr(1).split('-').join('');
 
 		while (txt.indexOf('.') > -1 && txt.indexOf('.') != txt.lastIndexOf('.')) {
 			var lastId = txt.lastIndexOf('.');
