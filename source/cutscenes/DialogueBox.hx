@@ -238,6 +238,11 @@ class DialogueBox extends FlxSpriteGroup {
 
 	function cleanDialog():Void {
 		var splitName:Array<String> = dialogueList[0].split(':');
+		// Lines without a "char:text" prefix would crash here when reading
+		// splitName[1].length; default to keeping the previous character.
+		if (splitName.length < 2 || splitName[1] == null) {
+			return;
+		}
 		curCharacter = splitName[1];
 		dialogueList[0] = dialogueList[0].substr(splitName[1].length + 2).trim();
 	}
