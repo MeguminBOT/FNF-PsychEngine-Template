@@ -87,13 +87,21 @@ class NoteTypesConfig {
 	private static function _propCheckArray(obj:Dynamic, slice:String, setProp:Bool = false, valueToSet:Dynamic = null) {
 		var propArray:Array<String> = slice.split('[');
 		if (propArray.length > 1) {
-			for (i in 0...propArray.length) {
-				var str:Dynamic = propArray[i];
+			// First chunk is the property name (e.g. 'foo' in 'foo[0][1]'); only
+			// the rest are numeric indices wrapped with a trailing ']'. The old
+			// loop treated chunk 0 as an index too -- Std.parseInt('foo') was
+			// null, so obj[null] silently returned junk and bracket access on
+			// any field-rooted path (the common case) was effectively broken.
+			obj = Reflect.getProperty(obj, propArray[0]);
+			for (i in 1...propArray.length) {
+				var str:String = propArray[i];
 				var id:Int = Std.parseInt(str.substr(0, str.length - 1).trim());
 				if (i < propArray.length - 1)
 					obj = obj[id]; // middles
 				else if (setProp)
 					return obj[id] = valueToSet; // last
+				else
+					return obj[id];
 			}
 			return obj;
 		} else if (setProp) {
