@@ -125,8 +125,16 @@ class LuaUtils {
 				try {
 					// FunkinLua.luaTrace('getModSetting: Trying to find default value for "$saveTag" in Mod: "$modName"');
 					var parsedJson:Dynamic = tjson.TJSON.parse(data);
-					for (i in 0...parsedJson.length) {
-						var sub:Dynamic = parsedJson[i];
+					if (!Std.isOfType(parsedJson, Array)) {
+						// settings.json must be a JSON array of option entries;
+						// the previous code blindly read .length and looped,
+						// which silently no-op'd (or crashed on hxcpp) for the
+						// `{...}`-rooted case.
+						throw 'mods/$modName/data/settings.json root is not a JSON array';
+					}
+					var arr:Array<Dynamic> = cast parsedJson;
+					for (i in 0...arr.length) {
+						var sub:Dynamic = arr[i];
 						if (sub != null && sub.save != null && !settings.exists(sub.save)) {
 							if (sub.type != 'keybind' && sub.type != 'key') {
 								if (sub.value != null) {
