@@ -669,8 +669,16 @@ class LoadingState extends MusicBeatState {
 		try {
 			var path:String = Paths.getPath('characters/$char.json', TEXT);
 			#if MODS_ALLOWED
-			var character:Dynamic = Json.parse(File.getContent(path));
+			// Skip silently when the JSON isn't on disk -- File.getContent
+			// throws a noisy stack trace and we'd just swallow it below.
+			// Characters referenced by charts/events that don't exist on
+			// the current mod are common and not actionable here.
+			if (!FileSystem.exists(path) && !Assets.exists(path))
+				return;
+			var character:Dynamic = Json.parse(FileSystem.exists(path) ? File.getContent(path) : Assets.getText(path));
 			#else
+			if (!Assets.exists(path))
+				return;
 			var character:Dynamic = Json.parse(Assets.getText(path));
 			#end
 
