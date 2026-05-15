@@ -10,11 +10,16 @@ class PsychFlxAnimate extends OriginalFlxAnimate {
 	public function loadAtlasEx(img:FlxGraphicAsset, pathOrStr:String = null, myJson:Dynamic = null) {
 		var animJson:AnimAtlas = null;
 		if (myJson is String) {
-			var trimmed:String = pathOrStr.trim();
+			// myJson here is either a path ending in .json or the raw JSON
+			// text. The previous code trimmed pathOrStr (the *xml/json folder*
+			// path) instead of myJson, so the .json suffix test could never
+			// succeed and raw JSON was always passed straight to File.getContent.
+			var jsonStr:String = cast myJson;
+			var trimmed:String = jsonStr.trim();
 			trimmed = trimmed.substr(trimmed.length - 5).toLowerCase();
 
 			if (trimmed == '.json')
-				myJson = File.getContent(myJson); // is a path
+				myJson = File.getContent(jsonStr); // is a path
 			animJson = cast haxe.Json.parse(_removeBOM(myJson));
 		} else
 			animJson = cast myJson;
