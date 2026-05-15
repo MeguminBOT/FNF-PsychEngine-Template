@@ -320,7 +320,7 @@ class Character extends FlxSprite {
 	private function get_animPaused():Bool {
 		if (isAnimationNull())
 			return false;
-		return !isAnimateAtlas ? animation.curAnim.paused : atlas.anim.isPlaying;
+		return !isAnimateAtlas ? animation.curAnim.paused : !atlas.anim.isPlaying;
 	}
 
 	private function set_animPaused(value:Bool):Bool {
