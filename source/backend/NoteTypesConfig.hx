@@ -95,7 +95,9 @@ class NoteTypesConfig {
 			obj = Reflect.getProperty(obj, propArray[0]);
 			for (i in 1...propArray.length) {
 				var str:String = propArray[i];
-				var id:Int = Std.parseInt(str.substr(0, str.length - 1).trim());
+				var parsed:Null<Int> = Std.parseInt(str.substr(0, str.length - 1).trim());
+				if (parsed == null) return obj; // malformed `[abc]` chunk -- bail with current target
+				var id:Int = parsed;
 				if (i < propArray.length - 1)
 					obj = obj[id]; // middles
 				else if (setProp)
