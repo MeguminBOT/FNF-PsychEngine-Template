@@ -62,7 +62,8 @@ class DeprecatedFunctions {
 				var strIndices:Array<String> = indices.trim().split(',');
 				var die:Array<Int> = [];
 				for (i in 0...strIndices.length) {
-					die.push(Std.parseInt(strIndices[i]));
+					var parsed:Null<Int> = Std.parseInt(strIndices[i]);
+					if (parsed != null) die.push(parsed);
 				}
 				var pussy:ModchartSprite = MusicBeatState.getVariables().get(tag);
 				pussy.animation.addByIndices(name, prefix, die, '', framerate, false);
