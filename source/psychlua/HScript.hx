@@ -432,6 +432,13 @@ class HScript extends Iris {
 
 		try {
 			var func:Dynamic = interp.variables.get(funcToRun); // function signature
+			if (!Reflect.isFunction(func)) {
+				// `exists()` returns true for any variable; Reflect.callMethod
+				// on a non-function value throws a generic exception that the
+				// IrisError/ValueException catch arms below don't cover, which
+				// then propagates out and breaks the calling Lua frame.
+				return null;
+			}
 			final ret = Reflect.callMethod(null, func, args ?? []);
 			return {funName: funcToRun, signature: func, returnValue: ret};
 		} catch (e:IrisError) {
