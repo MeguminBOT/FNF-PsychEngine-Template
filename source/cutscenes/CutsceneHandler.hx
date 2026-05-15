@@ -81,7 +81,7 @@ class CutsceneHandler extends FlxBasic {
 				trace('skipped cutscene');
 				if (skipCallback != null)
 					skipCallback();
-			} else
+			} else if (finishCallback != null)
 				finishCallback();
 
 			for (spr in objects) {
