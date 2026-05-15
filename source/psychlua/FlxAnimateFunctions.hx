@@ -57,7 +57,8 @@ class FlxAnimateFunctions {
 					var strIndices:Array<String> = cast(indices, String).trim().split(',');
 					var myIndices:Array<Int> = [];
 					for (i in 0...strIndices.length) {
-						myIndices.push(Std.parseInt(strIndices[i]));
+						var parsed:Null<Int> = Std.parseInt(strIndices[i]);
+						if (parsed != null) myIndices.push(parsed);
 					}
 					indices = myIndices;
 				}
