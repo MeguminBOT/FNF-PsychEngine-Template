@@ -46,12 +46,12 @@ class BaseStage extends FlxBasic {
 	public var camFollow(get, never):FlxObject;
 
 	public function new() {
+		super();
 		if (game == null) {
 			FlxG.log.error('Invalid state for the stage added!');
 			destroy();
 		} else {
 			game.stages.push(this);
-			super();
 			create();
 		}
 	}
