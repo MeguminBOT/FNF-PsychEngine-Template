@@ -1713,15 +1713,17 @@ class FunkinLua {
 		if (lua == null)
 			return false;
 
-		var result:String = null;
 		Lua.getglobal(lua, variable);
-		result = Convert.fromLua(lua, -1);
+		var result:Dynamic = Convert.fromLua(lua, -1);
 		Lua.pop(lua, 1);
 
-		if (result == null) {
-			return false;
-		}
-		return (result == 'true');
+		if (result == null) return false;
+		// Convert.fromLua may return a real Bool, an Int (lua 'number'),
+		// or a String; coerce the common truthy forms.
+		if (result == true) return true;
+		if (result == false) return false;
+		if ((result is String)) return (result == 'true');
+		return false;
 	}
 
 	function findScript(scriptFile:String, ext:String = '.lua') {
