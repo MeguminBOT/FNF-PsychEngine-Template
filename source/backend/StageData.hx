@@ -213,12 +213,14 @@ class StageData {
 	}
 
 	public static function validateVisibility(filters:LoadFilters) {
-		if ((filters & STORY_MODE) == STORY_MODE)
-			if (!PlayState.isStoryMode)
-				return false;
-			else if ((filters & FREEPLAY) == FREEPLAY)
-				if (PlayState.isStoryMode)
-					return false;
+		// Previously written as a nested if/else chain whose inner branch
+		// (`if (PlayState.isStoryMode)` inside the `else` of `if (!PlayState.isStoryMode)`)
+		// was unreachable, and pure-FREEPLAY-filtered objects were never hidden in
+		// story mode. Split into two independent bitmask checks.
+		if ((filters & STORY_MODE) == STORY_MODE && !PlayState.isStoryMode)
+			return false;
+		if ((filters & FREEPLAY) == FREEPLAY && PlayState.isStoryMode)
+			return false;
 
 		return ((ClientPrefs.data.lowQuality && (filters & LOW_QUALITY) == LOW_QUALITY)
 			|| (!ClientPrefs.data.lowQuality && (filters & HIGH_QUALITY) == HIGH_QUALITY));
