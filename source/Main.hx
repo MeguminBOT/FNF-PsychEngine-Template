@@ -144,6 +144,7 @@ class Main extends Sprite {
 
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
+		flixel.FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 

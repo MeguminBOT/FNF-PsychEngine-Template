@@ -63,6 +63,7 @@ class TitleState extends MusicBeatState {
 
 		if (!initialized) {
 			ClientPrefs.loadPrefs();
+			flixel.FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
 			Language.reloadPhrases();
 		}
 
