@@ -97,11 +97,14 @@ class NoteSplash extends FlxSprite {
 					rgb: config.rgb
 				}
 
-				for (i in Reflect.fields(config.animations)) {
-					var anim:NoteSplashAnim = Reflect.field(config.animations, i);
-					tempConfig.animations.set(i, anim);
-					if (anim.noteData % 4 == 0)
-						maxAnims++;
+				if (config.animations != null) {
+					for (i in Reflect.fields(config.animations)) {
+						var anim:NoteSplashAnim = Reflect.field(config.animations, i);
+						if (anim == null) continue;
+						tempConfig.animations.set(i, anim);
+						if (anim.noteData % 4 == 0)
+							maxAnims++;
+					}
 				}
 
 				this.config = tempConfig;
