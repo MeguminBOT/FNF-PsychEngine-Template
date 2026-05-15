@@ -2156,9 +2156,8 @@ class PlayState extends MusicBeatState {
 					case 'boyfriend' | 'bf':
 						char = boyfriend;
 					default:
-						var val:Int = Std.parseInt(value1);
-						if (Math.isNaN(val))
-							val = 0;
+						var parsed:Null<Int> = Std.parseInt(value1);
+						var val:Int = (parsed != null) ? parsed : 0;
 
 						switch (val) {
 							case 1: char = boyfriend;
