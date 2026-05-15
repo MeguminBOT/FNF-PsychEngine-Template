@@ -212,10 +212,19 @@ class Achievements {
 	#if MODS_ALLOWED
 	public static function reloadList() {
 		// remove modded achievements
-		if ((_sortID + 1) > _originalLength)
+		if ((_sortID + 1) > _originalLength) {
+			// Collect keys first; mutating the map mid-iteration is undefined
+			// behaviour on hxcpp (StringMap rehash invalidates the iterator).
+			var toRemove:Array<String> = null;
 			for (key => value in achievements)
-				if (value.mod != null)
-					achievements.remove(key);
+				if (value.mod != null) {
+					if (toRemove == null) toRemove = [];
+					toRemove.push(key);
+				}
+			if (toRemove != null)
+				for (i in 0...toRemove.length)
+					achievements.remove(toRemove[i]);
+		}
 
 		_sortID = _originalLength - 1;
 
