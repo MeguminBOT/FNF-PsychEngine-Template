@@ -91,8 +91,8 @@ class CutsceneHandler extends FlxBasic {
 			}
 
 			skipSprite = FlxDestroyUtil.destroy(skipSprite);
-			destroy();
 			PlayState.instance.remove(this);
+			destroy();
 		}
 	}
 
