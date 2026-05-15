@@ -66,8 +66,14 @@ class DialogueBox extends FlxSpriteGroup {
 
 		this.dialogueList = dialogueList;
 
-		if (!hasDialog)
+		if (!hasDialog) {
+			// Make sure a content-less dialogue substate doesn't sit on top
+			// of the play state forever; disable updates/draws so the parent
+			// state can immediately advance past it.
+			active = false;
+			visible = false;
 			return;
+		}
 
 		portraitLeft = new FlxSprite(-20, 40);
 		portraitLeft.frames = Paths.getSparrowAtlas('weeb/senpaiPortrait');
@@ -190,7 +196,7 @@ class DialogueBox extends FlxSpriteGroup {
 		swagDialogue.skip();
 		skipText.visible = false;
 		new FlxTimer().start(1.5, function(tmr:FlxTimer) {
-			finishThing();
+			if (finishThing != null) finishThing();
 			kill();
 		});
 	}
