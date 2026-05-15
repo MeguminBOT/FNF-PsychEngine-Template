@@ -96,6 +96,10 @@ class DialogueCharacter extends FlxSprite {
 			}
 		}
 
+		// If we still don't have a valid anim (no dialogueAnimations at all),
+		// bail out instead of letting "null$IDLE_POSTFIX" reach FlxAnimation.
+		if (leAnim == null) return;
+
 		if (dialogueAnimations.exists(leAnim)
 			&& (dialogueAnimations.get(leAnim).loop_name == null
 				|| dialogueAnimations.get(leAnim).loop_name.length < 1
