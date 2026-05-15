@@ -1483,10 +1483,8 @@ class PlayState extends MusicBeatState {
 					case 'dad' | 'opponent':
 						charType = 1;
 					default:
-						var val1:Int = Std.parseInt(event.value1);
-						if (Math.isNaN(val1))
-							val1 = 0;
-						charType = val1;
+						var parsed:Null<Int> = Std.parseInt(event.value1);
+						charType = (parsed != null) ? parsed : 0;
 				}
 
 				var newCharacter:String = event.value2;
