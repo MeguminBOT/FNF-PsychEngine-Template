@@ -499,10 +499,13 @@ class Character extends FlxSprite {
 			atlas.color = color;
 		}
 	}
+	#end
 
 	public override function destroy() {
+		#if flxanimate
 		atlas = FlxDestroyUtil.destroy(atlas);
+		#end
+		missingText = FlxDestroyUtil.destroy(missingText);
 		super.destroy();
 	}
-	#end
 }
