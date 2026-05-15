@@ -1458,6 +1458,21 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setSoundPitch", function(tag:String, value:Float, ?doPause:Bool = false) {
 			#if FLX_PITCH
+			// Empty / null tag targets the global music; check BEFORE we
+			// format the tag (formatting always produces a non-empty string
+			// like "sound_", so the music branch was unreachable before).
+			if (tag == null || tag.length < 1) {
+				if (FlxG.sound.music != null) {
+					var wasResumed:Bool = FlxG.sound.music.playing;
+					if (doPause)
+						FlxG.sound.music.pause();
+					FlxG.sound.music.pitch = value;
+					if (doPause && wasResumed)
+						FlxG.sound.music.play();
+				}
+				return;
+			}
+
 			tag = LuaUtils.formatVariable('sound_$tag');
 			var snd:FlxSound = MusicBeatState.getVariables().get(tag);
 			if (snd != null) {
@@ -1467,28 +1482,6 @@ class FunkinLua {
 				snd.pitch = value;
 				if (doPause && wasResumed)
 					snd.play();
-			}
-
-			if (tag == null || tag.length < 1) {
-				if (FlxG.sound.music != null) {
-					var wasResumed:Bool = FlxG.sound.music.playing;
-					if (doPause)
-						FlxG.sound.music.pause();
-					FlxG.sound.music.pitch = value;
-					if (doPause && wasResumed)
-						FlxG.sound.music.play();
-					return;
-				}
-			} else {
-				var snd:FlxSound = MusicBeatState.getVariables().get(tag);
-				if (snd != null) {
-					var wasResumed:Bool = snd.playing;
-					if (doPause)
-						snd.pause();
-					snd.pitch = value;
-					if (doPause && wasResumed)
-						snd.play();
-				}
 			}
 			#else
 			luaTrace("setSoundPitch: Sound Pitch is not supported on this platform!", false, false, FlxColor.RED);
