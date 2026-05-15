@@ -1363,7 +1363,14 @@ class PlayState extends MusicBeatState {
 
 				if (i != 0) {
 					// CLEAR ANY POSSIBLE GHOST NOTES
-					for (evilNote in unspawnNotes) {
+					// Iterate backwards because we mutate unspawnNotes inside the
+					// loop. The previous forward 'for (evilNote in unspawnNotes)'
+					// pattern advanced by index, so each remove() shifted later
+					// elements down and a duplicate could survive un-checked.
+					var k:Int = unspawnNotes.length;
+					while (--k >= 0) {
+						final evilNote:Note = unspawnNotes[k];
+						if (evilNote == null) continue;
 						var matches:Bool = (noteColumn == evilNote.noteData && gottaHitNote == evilNote.mustPress && evilNote.noteType == noteType);
 						if (matches && Math.abs(spawnTime - evilNote.strumTime) < flixel.math.FlxMath.EPSILON) {
 							if (evilNote.tail.length > 0)
@@ -1374,7 +1381,6 @@ class PlayState extends MusicBeatState {
 							evilNote.destroy();
 							unspawnNotes.remove(evilNote);
 							ghostNotesCaught++;
-							// continue;
 						}
 					}
 				}
