@@ -1413,17 +1413,14 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setSoundVolume", function(tag:String, value:Float) {
 			if (tag == null || tag.length < 1) {
-				tag = LuaUtils.formatVariable('sound_$tag');
-				if (FlxG.sound.music != null) {
+				if (FlxG.sound.music != null)
 					FlxG.sound.music.volume = value;
-					return;
-				}
-			} else {
-				tag = LuaUtils.formatVariable('sound_$tag');
-				var snd:FlxSound = MusicBeatState.getVariables().get(tag);
-				if (snd != null)
-					snd.volume = value;
+				return;
 			}
+			tag = LuaUtils.formatVariable('sound_$tag');
+			var snd:FlxSound = MusicBeatState.getVariables().get(tag);
+			if (snd != null)
+				snd.volume = value;
 		});
 		Lua_helper.add_callback(lua, "getSoundTime", function(tag:String) {
 			if (tag == null || tag.length < 1) {
