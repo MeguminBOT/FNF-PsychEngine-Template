@@ -121,6 +121,14 @@ class HScript extends Iris {
 				returnValue = null;
 				this.destroy();
 				throw e;
+			} catch (e:Dynamic) {
+				// Iris.execute can also throw ValueException / generic
+				// haxe.Exception (e.g. from Reflect.callMethod inside the
+				// interpreter); without this catch the partially-constructed
+				// HScript leaks and its global Iris listener stays registered.
+				returnValue = null;
+				this.destroy();
+				throw e;
 			}
 		}
 	}
