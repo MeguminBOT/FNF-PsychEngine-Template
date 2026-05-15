@@ -48,11 +48,17 @@ class LuaUtils {
 				target = Reflect.getProperty(instance, splitProps[0]);
 
 			for (i in 1...splitProps.length) {
-				var j:Dynamic = splitProps[i].substr(0, splitProps[i].length - 1);
+				var raw:String = splitProps[i].substr(0, splitProps[i].length - 1);
+				// Convert numeric brackets to Int so Array indexing works; the
+				// previous code used the String key directly, which on Haxe
+				// arrays goes through Reflect.getProperty and silently returns
+				// the wrong thing.
+				var idx:Null<Int> = Std.parseInt(raw);
+				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? cast(idx, Dynamic) : raw;
 				if (i >= splitProps.length - 1) // Last array
-					target[j] = value;
+					target[key] = value;
 				else // Anything else
-					target = target[j];
+					target = target[key];
 			}
 			return target;
 		}
