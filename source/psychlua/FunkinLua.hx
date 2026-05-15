@@ -1662,7 +1662,11 @@ class FunkinLua {
 		if (PlayState.instance == null)
 			return null;
 
-		var strumNote:StrumNote = PlayState.instance.strumLineNotes.members[note % PlayState.instance.strumLineNotes.length];
+		var strumLen:Int = PlayState.instance.strumLineNotes.length;
+		if (strumLen <= 0)
+			return null;
+
+		var strumNote:StrumNote = PlayState.instance.strumLineNotes.members[note % strumLen];
 		if (strumNote == null)
 			return null;
 
