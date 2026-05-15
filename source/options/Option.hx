@@ -69,7 +69,7 @@ class Option {
 				scrollSpeed = 0.5;
 				decimals = 2;
 			case STRING:
-				if (options.length > 0)
+				if (options != null && options.length > 0)
 					defaultValue = options[0];
 				if (defaultValue == null)
 					defaultValue = '';
@@ -86,9 +86,11 @@ class Option {
 
 			switch (type) {
 				case STRING:
-					var num:Int = options.indexOf(getValue());
-					if (num > -1)
-						curOption = num;
+					if (options != null) {
+						var num:Int = options.indexOf(getValue());
+						if (num > -1)
+							curOption = num;
+					}
 
 				default:
 			}

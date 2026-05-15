@@ -359,7 +359,7 @@ class GameplayOption {
 					defaultValue = 1;
 				case STRING:
 					defaultValue = '';
-					if (options.length > 0)
+					if (options != null && options.length > 0)
 						defaultValue = options[0];
 
 				default:
@@ -371,9 +371,11 @@ class GameplayOption {
 
 		switch (type) {
 			case STRING:
-				var num:Int = options.indexOf(getValue());
-				if (num > -1)
-					curOption = num;
+				if (options != null) {
+					var num:Int = options.indexOf(getValue());
+					if (num > -1)
+						curOption = num;
+				}
 
 			case PERCENT:
 				displayFormat = '%v%';
