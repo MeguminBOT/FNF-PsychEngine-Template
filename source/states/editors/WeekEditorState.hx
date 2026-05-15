@@ -646,8 +646,8 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
 				var leColor:Array<Int> = [];
 				var splitted:Array<String> = Clipboard.text.trim().split(',');
 				for (i in 0...splitted.length) {
-					var toPush:Int = Std.parseInt(splitted[i]);
-					if (!Math.isNaN(toPush)) {
+					var toPush:Null<Int> = Std.parseInt(splitted[i]);
+					if (toPush != null) {
 						if (toPush > 255)
 							toPush = 255;
 						else if (toPush < 0)
