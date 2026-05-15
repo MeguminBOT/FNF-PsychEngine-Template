@@ -2044,8 +2044,8 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 			var indicesStr:Array<String> = animationIndicesInputText.text.trim().split(',');
 			if (indicesStr.length > 1) {
 				for (i in 0...indicesStr.length) {
-					var index:Int = Std.parseInt(indicesStr[i]);
-					if (indicesStr[i] != null && indicesStr[i] != '' && !Math.isNaN(index) && index > -1) {
+					var index:Null<Int> = Std.parseInt(indicesStr[i]);
+					if (index != null && index > -1) {
 						indices.push(index);
 					}
 				}
