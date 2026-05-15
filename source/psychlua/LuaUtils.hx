@@ -54,7 +54,7 @@ class LuaUtils {
 				// arrays goes through Reflect.getProperty and silently returns
 				// the wrong thing.
 				var idx:Null<Int> = Std.parseInt(raw);
-				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? cast(idx, Dynamic) : raw;
+				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? (idx : Dynamic) : raw;
 				if (i >= splitProps.length - 1) // Last array
 					target[key] = value;
 				else // Anything else
@@ -91,7 +91,7 @@ class LuaUtils {
 			for (i in 1...splitProps.length) {
 				var raw:String = splitProps[i].substr(0, splitProps[i].length - 1);
 				var idx:Null<Int> = Std.parseInt(raw);
-				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? cast(idx, Dynamic) : raw;
+				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? (idx : Dynamic) : raw;
 				target = target[key];
 			}
 			return target;
