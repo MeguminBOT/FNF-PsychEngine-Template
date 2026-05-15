@@ -106,17 +106,20 @@ class Paths {
 			for (member in FlxG.state.subState.members)
 				checkForGraphics(member);
 
+		var freedKeys:Array<String> = [];
 		for (key in currentTrackedAssets.keys()) {
 			// if it is not currently contained within the used local assets
 			if (!dumpExclusions.contains(key)) {
 				var graphic:FlxGraphic = currentTrackedAssets.get(key);
 				if (!protectedGfx.contains(graphic)) {
 					destroyGraphic(graphic); // get rid of the graphic
-					currentTrackedAssets.remove(key); // and remove the key from local cache map
+					freedKeys.push(key);
 					// trace('deleted $key');
 				}
 			}
 		}
+		for (i in 0...freedKeys.length)
+			currentTrackedAssets.remove(freedKeys[i]);
 	}
 
 	inline static function destroyGraphic(graphic:FlxGraphic) {
