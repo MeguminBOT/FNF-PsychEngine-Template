@@ -115,7 +115,6 @@ class RGBShaderReference {
 
 	private function cloneOriginal() {
 		if (allowNew) {
-			allowNew = false;
 			if (_original != parent)
 				return;
 
@@ -125,6 +124,10 @@ class RGBShaderReference {
 			parent.b = _original.b;
 			parent.mult = _original.mult;
 			_owner.shader = parent.shader;
+			// allowNew is reset only after we successfully cloned, so a
+			// no-op early-return path doesn't permanently lock out cloning
+			// for subsequent setter calls.
+			allowNew = false;
 			// trace('created new shader');
 		}
 	}
