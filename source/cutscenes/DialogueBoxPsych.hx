@@ -275,7 +275,7 @@ class DialogueBoxPsych extends FlxSpriteGroup {
 				}
 			}
 		} else { // Dialogue ending
-			if (box != null && box.animation.curAnim.curFrame <= 0) {
+			if (box != null && box.animation.curAnim != null && box.animation.curAnim.curFrame <= 0) {
 				box.kill();
 				remove(box);
 				box.destroy();
