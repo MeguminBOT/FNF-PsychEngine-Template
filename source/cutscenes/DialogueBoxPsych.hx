@@ -112,6 +112,11 @@ class DialogueBoxPsych extends FlxSpriteGroup {
 		for (i in 0...dialogueList.dialogue.length) {
 			if (dialogueList.dialogue[i] != null) {
 				var charToAdd:String = dialogueList.dialogue[i].portrait;
+				// portrait may be null when the dialogue line omits it; the
+				// previous code happily inserted null into the map and then
+				// crashed downstream when DialogueCharacter('null') tried to
+				// load assets/${null}.json.
+				if (charToAdd == null) continue;
 				if (!charsMap.exists(charToAdd) || !charsMap.get(charToAdd)) {
 					charsMap.set(charToAdd, true);
 				}
