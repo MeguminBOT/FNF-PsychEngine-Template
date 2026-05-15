@@ -114,7 +114,7 @@ class PsychUIInputText extends FlxSpriteGroup {
 					caretIndex = text.length;
 
 				case X, C: // cut/copy selected text to clipboard
-					if (caretIndex >= 0 && selectIndex != 0 && caretIndex != selectIndex) {
+					if (caretIndex >= 0 && selectIndex >= 0 && caretIndex != selectIndex) {
 						Clipboard.text = text.substring(caretIndex, selectIndex);
 						if (flxKey == X)
 							deleteSelection();
