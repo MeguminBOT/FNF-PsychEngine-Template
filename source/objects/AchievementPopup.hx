@@ -14,6 +14,7 @@ class AchievementPopup extends openfl.display.Sprite {
 
 	public function new(achieve:String, onFinish:Void->Void) {
 		super();
+		this.onFinish = onFinish;
 
 		// bg
 		graphics.beginFill(FlxColor.BLACK);
@@ -157,6 +158,11 @@ class AchievementPopup extends openfl.display.Sprite {
 		FlxG.stage.removeEventListener(Event.RESIZE, onResize);
 		removeEventListener(Event.ENTER_FRAME, update);
 		deleteClonedBitmaps();
+		if (onFinish != null) {
+			var cb = onFinish;
+			onFinish = null;
+			cb();
+		}
 	}
 
 	function deleteClonedBitmaps() {
