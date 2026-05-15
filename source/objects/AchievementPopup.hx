@@ -104,7 +104,7 @@ class AchievementPopup extends openfl.display.Sprite {
 		var clonedBitmap:BitmapData = text.graphic.bitmap.clone();
 		bitmaps.push(clonedBitmap);
 		graphics.beginBitmapFill(clonedBitmap, new Matrix(1, 0, 0, 1, textX, textY), false, false);
-		graphics.drawRect(textX, textY, text.width + textX, text.height + textY);
+		graphics.drawRect(textX, textY, text.width, text.height);
 	}
 
 	var lerpTime:Float = 0;
