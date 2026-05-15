@@ -569,9 +569,12 @@ class Note extends FlxSprite {
 
 	@:noCompletion
 	override function set_clipRect(rect:FlxRect):FlxRect {
-		clipRect = rect;
+		// @:bypassAccessor avoids recursing into this setter through the
+		// (default, set) property declared on FlxSprite. Without it, hxcpp
+		// re-enters set_clipRect for every assignment to clipRect.
+		@:bypassAccessor clipRect = rect;
 
-		if (frames != null)
+		if (frames != null && animation.frameIndex >= 0 && animation.frameIndex < frames.frames.length)
 			frame = frames.frames[animation.frameIndex];
 
 		return rect;
