@@ -155,7 +155,7 @@ class MainMenuState extends MusicBeatState {
 
 			var allowMouse:Bool = allowMouse;
 			if (allowMouse
-				&& ((FlxG.mouse.deltaScreenX != 0 && FlxG.mouse.deltaScreenY != 0)
+				&& ((FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0)
 					|| FlxG.mouse.justPressed)) // FlxG.mouse.deltaScreenX/Y checks is more accurate than FlxG.mouse.justMoved
 			{
 				allowMouse = false;
