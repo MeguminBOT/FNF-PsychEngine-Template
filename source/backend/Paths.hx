@@ -60,12 +60,15 @@ class Paths {
 		}
 
 		// clear all sounds that are cached
+		var soundsToRemove:Array<String> = [];
 		for (key => asset in currentTrackedSounds) {
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && asset != null) {
 				Assets.cache.clear(key);
-				currentTrackedSounds.remove(key);
+				soundsToRemove.push(key);
 			}
 		}
+		for (i in 0...soundsToRemove.length)
+			currentTrackedSounds.remove(soundsToRemove[i]);
 		// flags everything to be cleared out next unused memory clear
 		localTrackedAssets = [];
 		#if !html5 openfl.Assets.cache.clear("songs"); #end
