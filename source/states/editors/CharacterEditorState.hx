@@ -492,19 +492,17 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 					for (ind in indicesStr) {
 						if (ind.contains('-')) {
 							var splitIndices:Array<String> = ind.split('-');
-							var indexStart:Int = Std.parseInt(splitIndices[0]);
-							if (Math.isNaN(indexStart) || indexStart < 0)
-								indexStart = 0;
+							var startParsed:Null<Int> = Std.parseInt(splitIndices[0]);
+							var indexStart:Int = (startParsed == null || startParsed < 0) ? 0 : startParsed;
 
-							var indexEnd:Int = Std.parseInt(splitIndices[1]);
-							if (Math.isNaN(indexEnd) || indexEnd < indexStart)
-								indexEnd = indexStart;
+							var endParsed:Null<Int> = Std.parseInt(splitIndices[1]);
+							var indexEnd:Int = (endParsed == null || endParsed < indexStart) ? indexStart : endParsed;
 
 							for (index in indexStart...indexEnd + 1)
 								indices.push(index);
 						} else {
-							var index:Int = Std.parseInt(ind);
-							if (!Math.isNaN(index) && index > -1)
+							var index:Null<Int> = Std.parseInt(ind);
+							if (index != null && index > -1)
 								indices.push(index);
 						}
 					}
