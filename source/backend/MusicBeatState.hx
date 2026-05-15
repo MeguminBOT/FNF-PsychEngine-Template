@@ -118,7 +118,11 @@ class MusicBeatState extends FlxState {
 			}
 		}
 
-		if (curSection > lastSection)
+		// rollbackSection only runs when we went backwards, so curSection
+		// can never be greater than the prior value here; the previous
+		// `>` comparison meant sectionHit() never fired on rewinds (e.g.
+		// chart editor scrubbing), leaving stages/scripts desynced.
+		if (curSection != lastSection)
 			sectionHit();
 	}
 

@@ -75,7 +75,10 @@ class MusicBeatSubstate extends FlxSubState {
 			}
 		}
 
-		if (curSection > lastSection)
+		// rollbackSection only runs when we went backwards; the previous
+		// `>` comparison meant sectionHit() never fired on rewinds and
+		// substate-owned stage scripts ended up desynced.
+		if (curSection != lastSection)
 			sectionHit();
 	}
 
