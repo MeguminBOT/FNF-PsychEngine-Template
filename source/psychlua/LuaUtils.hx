@@ -89,8 +89,10 @@ class LuaUtils {
 				target = Reflect.getProperty(instance, splitProps[0]);
 
 			for (i in 1...splitProps.length) {
-				var j:Dynamic = splitProps[i].substr(0, splitProps[i].length - 1);
-				target = target[j];
+				var raw:String = splitProps[i].substr(0, splitProps[i].length - 1);
+				var idx:Null<Int> = Std.parseInt(raw);
+				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? cast(idx, Dynamic) : raw;
+				target = target[key];
 			}
 			return target;
 		}
