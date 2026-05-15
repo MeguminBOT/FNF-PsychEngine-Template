@@ -21,7 +21,7 @@ class ModSettingsSubState extends BaseOptionsMenu {
 			FlxG.save.data.modSettings = new Map<String, Dynamic>();
 		else {
 			var saveMap:Map<String, Dynamic> = FlxG.save.data.modSettings;
-			save = saveMap[folder] != null ? saveMap[folder] : [];
+			save = saveMap[folder] != null ? saveMap[folder] : new Map<String, Dynamic>();
 		}
 
 		// save = []; //reset for debug purposes
@@ -137,6 +137,9 @@ class ModSettingsSubState extends BaseOptionsMenu {
 			trace('$errorTitle - $errorMsg');
 
 			_crashed = true;
+			// super() must run before any FlxSubState lifecycle calls;
+			// close() on a not-yet-constructed substate touches null members.
+			super();
 			close();
 			return;
 		}
