@@ -172,6 +172,7 @@ class LuaUtils {
 		}*/
 
 		// trace(variable);
+		if (variable == null) return false;
 		if (variable.exists != null && variable.keyValueIterator != null)
 			return true;
 		return false;
