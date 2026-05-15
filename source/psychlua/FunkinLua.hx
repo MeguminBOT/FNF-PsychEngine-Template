@@ -491,7 +491,7 @@ class FunkinLua {
 					if (tag != null) {
 						var variables = MusicBeatState.getVariables();
 						var originalTag:String = 'tween_' + LuaUtils.formatVariable(tag);
-						variables.set(tag, FlxTween.tween(penisExam, values, duration, myOptions != null ? {
+						variables.set(originalTag, FlxTween.tween(penisExam, values, duration, myOptions != null ? {
 							type: myOptions.type,
 							ease: myOptions.ease,
 							startDelay: myOptions.startDelay,
@@ -507,12 +507,12 @@ class FunkinLua {
 							},
 							onComplete: function(twn:FlxTween) {
 								if (twn.type == FlxTweenType.ONESHOT || twn.type == FlxTweenType.BACKWARD)
-									variables.remove(tag);
+									variables.remove(originalTag);
 								if (myOptions.onComplete != null)
 									game.callOnLuas(myOptions.onComplete, [originalTag, vars]);
 							}
 						} : null));
-						return tag;
+						return originalTag;
 					} else
 						FlxTween.tween(penisExam, values, duration, myOptions != null ? {
 							type: myOptions.type,
