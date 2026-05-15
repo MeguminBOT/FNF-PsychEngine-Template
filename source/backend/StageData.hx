@@ -121,7 +121,16 @@ class StageData {
 			?ignoreFilters:Bool = false) {
 		var addedObjects:Map<String, FlxSprite> = [];
 		for (num => data in objectList) {
-			if (addedObjects.exists(data))
+			// Pick the canonical key the matching branch below would store under.
+			// Previously this called `addedObjects.exists(data)` on a Dynamic,
+			// so the dedup never matched and entries could be added twice.
+			var dedupKey:String = switch (data.type) {
+				case 'gf', 'gfGroup': 'gf';
+				case 'dad', 'dadGroup': 'dad';
+				case 'boyfriend', 'boyfriendGroup': 'boyfriend';
+				default: data.name;
+			};
+			if (dedupKey != null && addedObjects.exists(dedupKey))
 				continue;
 
 			switch (data.type) {
