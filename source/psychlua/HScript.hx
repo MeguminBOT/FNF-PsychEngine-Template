@@ -403,6 +403,11 @@ class HScript extends Iris {
 			if (funk.hscript == null)
 				initHaxeModule(funk);
 
+			// initHaxeModule may fail to assign funk.hscript (e.g. constructor
+			// throws); without this guard the next line NPEs.
+			if (funk.hscript == null)
+				return;
+
 			var pos:HScriptInfos = cast funk.hscript.interp.posInfos();
 			pos.showLine = false;
 			if (funk.lastCalledFunction != '')
