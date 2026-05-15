@@ -450,14 +450,19 @@ class Character extends FlxSprite {
 			if (atlas.anim.curInstance != null) {
 				copyAtlasValues();
 				atlas.draw();
-				alpha = lastAlpha;
-				color = lastColor;
 				if (missingCharacter && visible) {
+					alpha = lastAlpha;
+					color = lastColor;
 					missingText.x = getMidpoint().x - 150;
 					missingText.y = getMidpoint().y - 10;
 					missingText.draw();
 				}
 			}
+			// Always restore alpha/color before returning -- previously the
+			// `curInstance == null` branch skipped the restore, so each frame
+			// re-multiplied alpha by 0.6 until the sprite faded to black.
+			alpha = lastAlpha;
+			color = lastColor;
 			return;
 		}
 		super.draw();
@@ -467,6 +472,9 @@ class Character extends FlxSprite {
 			missingText.x = getMidpoint().x - 150;
 			missingText.y = getMidpoint().y - 10;
 			missingText.draw();
+		} else if (missingCharacter) {
+			alpha = lastAlpha;
+			color = lastColor;
 		}
 	}
 
