@@ -145,6 +145,12 @@ class NoteSplash extends FlxSprite {
 								offsets.push([x, y]);
 							}
 						}
+						// If every offset row was blank, fall back to default
+						// instead of leaving an empty array; the wrap math
+						// below would otherwise return offsets[0] == null and
+						// crash later in spawnSplashNote.
+						if (offsets.length == 0)
+							offsets = [[0, 0]];
 					}
 				}
 			}
