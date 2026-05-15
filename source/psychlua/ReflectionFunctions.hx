@@ -74,7 +74,7 @@ class ReflectionFunctions {
 			else
 				realObject = Reflect.getProperty(LuaUtils.getTargetInstance(), group);
 
-			var groupOrArray:Dynamic = Reflect.getProperty(LuaUtils.getTargetInstance(), group);
+			var groupOrArray:Dynamic = realObject;
 			if (groupOrArray != null) {
 				switch (Type.typeof(groupOrArray)) {
 					case TClass(Array): // Is Array
