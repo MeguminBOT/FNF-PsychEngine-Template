@@ -38,14 +38,16 @@ class CallbackHandler {
 			if (cbf == null) {
 				final last:FunkinLua = FunkinLua.lastCalledScript;
 				if (last == null || last.lua != L) {
-					for (script in PlayState.instance.luaArray)
-						if (script != null && script != last && script.lua == L) {
-							cbf = script.callbacks.get(fname);
-							// Mirror linc_luajit behaviour: dispatcher updates
-							// lastCalledScript so per-script API helpers route correctly.
-							FunkinLua.lastCalledScript = script;
-							break;
-						}
+					if (PlayState.instance != null && PlayState.instance.luaArray != null) {
+						for (script in PlayState.instance.luaArray)
+							if (script != null && script != last && script.lua == L) {
+								cbf = script.callbacks.get(fname);
+								// Mirror linc_luajit behaviour: dispatcher updates
+								// lastCalledScript so per-script API helpers route correctly.
+								FunkinLua.lastCalledScript = script;
+								break;
+							}
+					}
 				} else
 					cbf = last.callbacks.get(fname);
 			}
