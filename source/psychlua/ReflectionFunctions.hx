@@ -299,6 +299,7 @@ class ReflectionFunctions {
 		}
 
 		for (i in 0...split.length) {
+			if (obj == null) return null;
 			obj = LuaUtils.getVarInArray(obj, split[i].trim());
 			// trace(obj, split[i]);
 		}
