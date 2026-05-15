@@ -1546,7 +1546,7 @@ class FunkinLua {
 			else
 				result = LuaL.dostring(lua, scriptName);
 
-			var resultStr:String = Lua.tostring(lua, result);
+			var resultStr:String = Lua.tostring(lua, -1);
 			if (resultStr != null && result != 0) {
 				trace(resultStr);
 				#if windows
