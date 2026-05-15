@@ -381,14 +381,15 @@ class NoteOffsetState extends MusicBeatState {
 			if (OptionsState.onPlayState) {
 				if (ClientPrefs.data.pauseMusic != 'None')
 					FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)));
-				else
+				else if (FlxG.sound.music != null)
 					FlxG.sound.music.volume = 0;
 			} else
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			FlxG.mouse.visible = false;
 		}
 
-		Conductor.songPosition = FlxG.sound.music.time;
+		if (FlxG.sound.music != null)
+			Conductor.songPosition = FlxG.sound.music.time;
 		super.update(elapsed);
 	}
 
