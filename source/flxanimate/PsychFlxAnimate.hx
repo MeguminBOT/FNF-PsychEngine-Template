@@ -77,11 +77,17 @@ class PsychFlxAnimate extends OriginalFlxAnimate {
 		try {
 			super.destroy();
 		} catch (e:haxe.Exception) {
-			anim.curInstance = FlxDestroyUtil.destroy(anim.curInstance);
-			anim.stageInstance = FlxDestroyUtil.destroy(anim.stageInstance);
-			// anim.metadata = FlxDestroyUtil.destroy(anim.metadata);
-			anim.metadata.destroy();
-			anim.symbolDictionary = null;
+			// super.destroy() can fail partway through; the catch path then
+			// accessed `anim` and `anim.metadata` without checking for null,
+			// which immediately throws another exception and masks the real
+			// one. Guard each access individually.
+			if (anim != null) {
+				anim.curInstance = FlxDestroyUtil.destroy(anim.curInstance);
+				anim.stageInstance = FlxDestroyUtil.destroy(anim.stageInstance);
+				if (anim.metadata != null)
+					anim.metadata.destroy();
+				anim.symbolDictionary = null;
+			}
 		}
 	}
 
