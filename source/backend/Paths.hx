@@ -33,13 +33,16 @@ class Paths {
 	// haya I love you for the base cache dump I took to the max
 	public static function clearUnusedMemory() {
 		// clear non local assets in the tracked assets list
+		var toRemove:Array<String> = [];
 		for (key in currentTrackedAssets.keys()) {
 			// if it is not currently contained within the used local assets
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key)) {
 				destroyGraphic(currentTrackedAssets.get(key)); // get rid of the graphic
-				currentTrackedAssets.remove(key); // and remove the key from local cache map
+				toRemove.push(key);
 			}
 		}
+		for (i in 0...toRemove.length)
+			currentTrackedAssets.remove(toRemove[i]);
 
 		// run the garbage collector for good measure lmfao
 		System.gc();
