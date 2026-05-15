@@ -546,7 +546,7 @@ class LoadingState extends MusicBeatState {
 					completedThread();
 				});
 			}
-			if (!stageData.hide_girlfriend && gfVersion != player2 && gfVersion != player1) {
+			if (stageData != null && !stageData.hide_girlfriend && gfVersion != player2 && gfVersion != player1) {
 				threadsMax++;
 				threadPool.run(() -> {
 					try {
