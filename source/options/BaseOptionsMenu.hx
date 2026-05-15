@@ -410,14 +410,14 @@ class BaseOptionsMenu extends MusicBeatSubstate {
 
 	function closeBinding() {
 		bindingKey = false;
-		bindingBlack.destroy();
 		remove(bindingBlack);
+		bindingBlack.destroy();
 
-		bindingText.destroy();
 		remove(bindingText);
+		bindingText.destroy();
 
-		bindingText2.destroy();
 		remove(bindingText2);
+		bindingText2.destroy();
 		ClientPrefs.toggleVolumeKeys(true);
 	}
 
