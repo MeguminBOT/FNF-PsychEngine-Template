@@ -70,4 +70,18 @@ fi
 haxelib set hxcpp git --always
 
 echo
+echo "Building hxcpp command-line tool from source..."
+if [ -f "$repo_root/hxcpp/git/tools/hxcpp/compile.hxml" ]; then
+	(cd "$repo_root/hxcpp/git/tools/hxcpp" && haxe compile.hxml)
+fi
+
+echo
+echo "Patching funkin.vis SpectralAnalyzer for current grig.audio API..."
+SA="$repo_root/funkin,vis/git/src/funkin/vis/dsp/SpectralAnalyzer.hx"
+if [ -f "$SA" ]; then
+	sed -i.bak 's|vis\.makeLogGraph(freqs, barCount + 1, Math\.floor(maxDb - minDb), range, fftN, audioClip\.audioBuffer\.sampleRate, minFreq, maxFreq)|vis.makeLogGraph(freqs, barCount + 1, Math.floor(maxDb - minDb), range)|' "$SA"
+	rm -f "$SA.bak"
+fi
+
+echo
 echo "Finished!"

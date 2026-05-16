@@ -55,6 +55,21 @@ for /d %%V in (".haxelib\hxcpp\*") do (
 call haxelib set hxcpp git --always
 
 echo.
+echo Building hxcpp command-line tool from source...
+if exist ".haxelib\hxcpp\git\tools\hxcpp\compile.hxml" (
+	pushd ".haxelib\hxcpp\git\tools\hxcpp"
+	call haxe compile.hxml
+	popd
+)
+
+echo.
+echo Patching funkin.vis SpectralAnalyzer for current grig.audio API...
+set "SA=.haxelib\funkin,vis\git\src\funkin\vis\dsp\SpectralAnalyzer.hx"
+if exist "!SA!" (
+	powershell -NoProfile -Command "(Get-Content -Raw '!SA!') -replace 'vis\.makeLogGraph\(freqs, barCount \+ 1, Math\.floor\(maxDb - minDb\), range, fftN, audioClip\.audioBuffer\.sampleRate, minFreq, maxFreq\)', 'vis.makeLogGraph(freqs, barCount + 1, Math.floor(maxDb - minDb), range)' | Set-Content -NoNewline '!SA!'"
+)
+
+echo.
 echo Finished!
 endlocal
 pause
