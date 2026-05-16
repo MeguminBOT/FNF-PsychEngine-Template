@@ -75,19 +75,46 @@ sudo emerge --ask dev-vcs/git-sh dev-lang/haxe media-video/vlc
 
 Open a terminal or command prompt window in the root directory of this repository.
 
-For building the game, in every system, you're going to execute `haxelib setup`. If you are asked to enter the name of the haxelib repository, type `.haxelib`.
+Head into the `setup` folder and execute the setup script for your OS:
 
-In Mac and Linux, you need to create a folder to put your Haxe libraries in, do `mkdir ~/haxelib && haxelib setup ~/haxelib`.
-
-Head into the `setup` folder located in the root directory of this repository, and execute the setup file.
-
-### "Which setup file?"
-
-It depends on your operating system. For Windows, run `windows.bat`, for anything else, run `unix.sh`.
+- **Windows:** run `windows.bat`. It creates a project-local `.haxelib` folder, then installs every dependency at the exact pinned version (no `haxelib setup` step needed).
+- **macOS / Linux:** run `unix.sh`. It creates a global haxelib repo at `~/haxelib` (`mkdir ~/haxelib && haxelib setup ~/haxelib`) and installs the same pinned dependencies there.
 
 Sit back, relax, and wait for haxelib to do its magic. You will be done when you see the word "**Finished!**"
 
 To build the game, run `lime test cpp`.
+
+---
+
+### What gets installed
+
+Both setup scripts install the dependencies listed below. Versions are pinned in the scripts themselves — update them there if you need to bump anything. `Project.xml` intentionally has no `version=""` attributes on `<haxelib>` entries; whichever version the script registered as `current` is what gets used.
+
+| Library              | Source                                         |
+| -------------------- | ---------------------------------------------- |
+| `lime`               | haxelib                                        |
+| `openfl`             | haxelib                                        |
+| `flixel`             | haxelib                                        |
+| `flixel-addons`      | haxelib                                        |
+| `flixel-tools`       | haxelib                                        |
+| `hscript-iris`       | haxelib                                        |
+| `hscript`            | haxelib                                        |
+| `hxcpp-debug-server` | haxelib                                        |
+| `hxdiscord_rpc`      | haxelib                                        |
+| `hxvlc`              | haxelib                                        |
+| `tink_core`          | haxelib                                        |
+| `tjson`              | haxelib                                        |
+| `thx.core`           | haxelib (transitive dep of `grig.audio`)       |
+| `hxcpp`              | git — installed **first** so no stale release of it ends up on disk |
+| `flxanimate`         | git                                            |
+| `funkin.vis`         | git                                            |
+| `grig.audio`         | git                                            |
+| `hxluajit`           | git                                            |
+| `hxluajit-wrapper`   | git                                            |
+
+The scripts pass `--skip-dependencies` everywhere because the list above is already complete; this prevents `lime`/`openfl`/`flixel` from dragging in an outdated release `hxcpp` on top of the git version.
+
+> Note: the `hmm.json` file in the repo root is **no longer used by the build**. `hmm` (Haxe Module Manager) was removed because its `haxelib --never git <name> <url> <ref>` call hit `sys_remove_dir` failures on Windows. The file is kept only as a human-readable reference of pinned versions.
 
 ---
 

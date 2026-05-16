@@ -1,22 +1,72 @@
 @echo off
 color 0a
 cd ..
-@echo on
-echo Installing dependencies...
-echo This might take a few moments depending on your internet speed.
-haxelib install lime
-haxelib install openfl
-haxelib install flixel
-haxelib install flixel-addons
-haxelib install flixel-tools
-haxelib install hscript-iris
-haxelib install tjson
-haxelib install hxdiscord_rpc
-haxelib install hxvlc
+setlocal enabledelayedexpansion
 
-haxelib git flxanimate https://github.com/Dot-Stuff/flxanimate 768740a56b26aa0c072720e0d1236b94afe68e3e
-haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7
-haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90
-haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666
+if not exist ".haxelib" (
+	echo Creating local haxelib repository...
+	call haxelib newrepo
+)
+
+echo.
+echo Installing hxcpp from git first (so no haxelib installs outdated versions)...
+echo.
+
+call :installGit hxcpp https://github.com/HaxeFoundation/hxcpp
+
+echo.
+echo Installing haxelib dependencies (--skip-dependencies, all transitive deps are manually asserted)...
+echo This might take a few moments depending on your internet speed.
+echo.
+
+call haxelib install lime               8.3.2  --quiet --always --skip-dependencies
+call haxelib install openfl             9.5.2  --quiet --always --skip-dependencies
+call haxelib install flixel             6.1.2  --quiet --always --skip-dependencies
+call haxelib install flixel-addons      4.0.1  --quiet --always --skip-dependencies
+call haxelib install flixel-tools       1.5.1  --quiet --always --skip-dependencies
+call haxelib install hscript-iris       1.1.3  --quiet --always --skip-dependencies
+call haxelib install hscript            2.7.0  --quiet --always --skip-dependencies
+call haxelib install hxcpp-debug-server 1.2.4  --quiet --always --skip-dependencies
+call haxelib install hxdiscord_rpc      1.3.0  --quiet --always --skip-dependencies
+call haxelib install hxvlc              2.2.6  --quiet --always --skip-dependencies
+call haxelib install tink_core          2.1.1  --quiet --always --skip-dependencies
+call haxelib install tjson              1.4.0  --quiet --always --skip-dependencies
+call haxelib install thx.core           0.44.0 --quiet --always --skip-dependencies
+
+echo.
+echo Installing remaining git dependencies...
+echo.
+
+call :installGit flxanimate       https://github.com/Dot-Stuff/flxanimate
+call :installGit funkin.vis       https://github.com/FunkinCrew/funkin.vis
+call :installGit grig.audio       https://gitlab.com/haxe-grig/grig.audio
+call :installGit hxluajit         https://github.com/MAJigsaw77/hxluajit
+call :installGit hxluajit-wrapper https://github.com/MAJigsaw77/hxluajit-wrapper
+
+echo.
+echo Re-asserting hxcpp = 'git' just in case and wipe any 4.3.2 version if it somehow snuck in.
+for /d %%V in (".haxelib\hxcpp\*") do (
+	if /i not "%%~nxV"=="git" (
+		echo Removing stray hxcpp version %%~nxV ...
+		attrib -r -s -h "%%V\*.*" /s /d >nul 2>&1
+		rmdir /s /q "%%V"
+	)
+)
+call haxelib set hxcpp git --always
+
+echo.
 echo Finished!
+endlocal
 pause
+exit /b 0
+
+:installGit
+rem %1 = library name, %2 = git url
+rem Wipe any leftover folder so haxelib never hits sys_remove_dir on read-only .git files.
+if exist ".haxelib\%~1" (
+	echo Cleaning existing .haxelib\%~1 ...
+	attrib -r -s -h ".haxelib\%~1\*.*" /s /d >nul 2>&1
+	rmdir /s /q ".haxelib\%~1"
+)
+call haxelib git %~1 %~2 --skip-dependencies
+exit /b 0

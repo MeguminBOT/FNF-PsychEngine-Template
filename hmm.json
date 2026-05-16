@@ -3,25 +3,25 @@
 		{
 			"name": "lime",
 			"type": "haxelib",
-			"version": "8.2.3",
+			"version": "8.3.2",
 			"dir": null
 		},
 		{
 			"name": "openfl",
 			"type": "haxelib",
-			"version": "9.4.2",
+			"version": "9.5.2",
 			"dir": null
 		},
 		{
 			"name": "flixel",
 			"type": "haxelib",
-			"version": "6.1.1",
+			"version": "6.1.2",
 			"dir": null
 		},
 		{
 			"name": "flixel-addons",
 			"type": "haxelib",
-			"version": "3.3.2",
+			"version": "4.0.1",
 			"dir": null
 		},
 		{
@@ -34,21 +34,18 @@
 			"name": "flxanimate",
 			"type": "git",
 			"dir": null,
-			"ref": "main",
 			"url": "https://github.com/Dot-Stuff/flxanimate"
 		},
 		{
 			"name": "funkin.vis",
 			"type": "git",
 			"dir": null,
-			"ref": "main",
 			"url": "https://github.com/FunkinCrew/funkin.vis"
 		},
 		{
 			"name": "grig.audio",
 			"type": "git",
 			"dir": null,
-			"ref": "main",
 			"url": "https://gitlab.com/haxe-grig/grig.audio"
 		},
 		{
@@ -60,7 +57,7 @@
 		{
 			"name": "hscript",
 			"type": "haxelib",
-			"version": "2.6.0",
+			"version": "2.7.0",
 			"dir": null
 		},
 		{
@@ -73,7 +70,6 @@
 			"name": "hxcpp",
 			"type": "git",
 			"dir": null,
-			"ref": "main",
 			"url": "https://github.com/HaxeFoundation/hxcpp"
 		},
 		{
@@ -85,21 +81,19 @@
 		{
 			"name": "hxvlc",
 			"type": "haxelib",
-			"version": "2.2.4",
+			"version": "2.2.6",
 			"dir": null
 		},
 		{
 			"name": "hxluajit",
 			"type": "git",
 			"dir": null,
-			"ref": "main",
 			"url": "https://github.com/MAJigsaw77/hxluajit"
 		},
 		{
 			"name": "hxluajit-wrapper",
 			"type": "git",
 			"dir": null,
-			"ref": "main",
 			"url": "https://github.com/MAJigsaw77/hxluajit-wrapper"
 		},
 		{
