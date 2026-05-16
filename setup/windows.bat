@@ -29,7 +29,7 @@ call haxelib install hscript            2.7.0  --quiet --always --skip-dependenc
 call haxelib install hxcpp-debug-server 1.2.4  --quiet --always --skip-dependencies
 call haxelib install hxdiscord_rpc      1.3.0  --quiet --always --skip-dependencies
 call haxelib install hxvlc              2.2.6  --quiet --always --skip-dependencies
-call haxelib install tink_core          2.1.1  --quiet --always --skip-dependencies
+call haxelib install tink_core          1.26.0 --quiet --always --skip-dependencies
 call haxelib install tjson              1.4.0  --quiet --always --skip-dependencies
 call haxelib install thx.core           0.44.0 --quiet --always --skip-dependencies
 
@@ -38,7 +38,7 @@ echo Installing remaining git dependencies...
 echo.
 
 call :installGit flxanimate       https://github.com/Dot-Stuff/flxanimate
-call :installGit funkin.vis       https://github.com/FunkinCrew/funkin.vis
+call :installGit funkin.vis       https://github.com/FunkinCrew/funkVis
 call :installGit grig.audio       https://gitlab.com/haxe-grig/grig.audio
 call :installGit hxluajit         https://github.com/MAJigsaw77/hxluajit
 call :installGit hxluajit-wrapper https://github.com/MAJigsaw77/hxluajit-wrapper
@@ -62,11 +62,14 @@ exit /b 0
 
 :installGit
 rem %1 = library name, %2 = git url
+rem Translate dots in lib name to commas for the on-disk folder (haxelib's encoding).
+set "LIB_DIR=%~1"
+set "LIB_DIR=!LIB_DIR:.=,!"
 rem Wipe any leftover folder so haxelib never hits sys_remove_dir on read-only .git files.
-if exist ".haxelib\%~1" (
-	echo Cleaning existing .haxelib\%~1 ...
-	attrib -r -s -h ".haxelib\%~1\*.*" /s /d >nul 2>&1
-	rmdir /s /q ".haxelib\%~1"
+if exist ".haxelib\!LIB_DIR!" (
+	echo Cleaning existing .haxelib\!LIB_DIR! ...
+	attrib -r -s -h ".haxelib\!LIB_DIR!\*.*" /s /d >nul 2>&1
+	rmdir /s /q ".haxelib\!LIB_DIR!"
 )
 call haxelib git %~1 %~2 --skip-dependencies
 exit /b 0

@@ -1,8 +1,11 @@
 @echo off
 color 0a
 cd ../..
-echo BUILDING GAME
+setlocal
+set "HAXELIB_PATH=%cd%\.haxelib\"
+echo BUILDING GAME (using local haxelib repo: %HAXELIB_PATH%)
 haxelib run lime build windows -release
+endlocal
 echo.
 echo done.
 pause

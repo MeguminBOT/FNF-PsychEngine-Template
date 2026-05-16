@@ -41,14 +41,14 @@ haxelib install hscript            2.7.0  --quiet --always --skip-dependencies
 haxelib install hxcpp-debug-server 1.2.4  --quiet --always --skip-dependencies
 haxelib install hxdiscord_rpc      1.3.0  --quiet --always --skip-dependencies
 haxelib install hxvlc              2.2.6  --quiet --always --skip-dependencies
-haxelib install tink_core          2.1.1  --quiet --always --skip-dependencies
+haxelib install tink_core          1.26.0 --quiet --always --skip-dependencies
 haxelib install tjson              1.4.0  --quiet --always --skip-dependencies
 haxelib install thx.core           0.44.0 --quiet --always --skip-dependencies
 
 echo
 echo "Installing remaining git dependencies..."
 install_git flxanimate       https://github.com/Dot-Stuff/flxanimate
-install_git funkin.vis       https://github.com/FunkinCrew/funkin.vis
+install_git funkin.vis       https://github.com/FunkinCrew/funkVis
 install_git grig.audio       https://gitlab.com/haxe-grig/grig.audio
 install_git hxluajit         https://github.com/MAJigsaw77/hxluajit
 install_git hxluajit-wrapper https://github.com/MAJigsaw77/hxluajit-wrapper
