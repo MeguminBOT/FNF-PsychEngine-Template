@@ -467,6 +467,10 @@ class PsychUIInputText extends FlxSpriteGroup {
 			return;
 
 		var textField = textObj.textField;
+		var textLen:Int = textField.text != null ? textField.text.length : 0;
+		if (caretIndex < 0) caretIndex = 0;
+		else if (caretIndex > textLen) caretIndex = textLen;
+		if (selectIndex > textLen) selectIndex = textLen;
 		textField.setSelection(caretIndex, caretIndex);
 		_caretTime = 0;
 		if (caret != null && caret.exists) {
