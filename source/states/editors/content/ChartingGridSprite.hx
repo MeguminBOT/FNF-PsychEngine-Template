@@ -20,6 +20,9 @@ class ChartingGridSprite extends FlxSprite {
 		this.columns = columns;
 		scrollFactor.x = 0;
 		active = false;
+		// The grid graphic is 1px per cell, scaled up by GRID_SIZE. Antialiasing
+		// turns the cells into a blurry grey wash, so force nearest-neighbor here.
+		antialiasing = false;
 
 		scale.set(ChartingState.GRID_SIZE, ChartingState.GRID_SIZE);
 		loadGrid(color1, color2);
@@ -30,11 +33,13 @@ class ChartingGridSprite extends FlxSprite {
 		vortexLine.scale.x = this.width;
 		vortexLine.scrollFactor.x = 0;
 		vortexLine.color = 0xFF660000;
+		vortexLine.antialiasing = false;
 		vortexLine.updateHitbox();
 
 		stripe = new FlxSprite().makeGraphic(1, 1, FlxColor.WHITE);
 		stripe.scrollFactor.x = 0;
 		stripe.color = FlxColor.BLACK;
+		stripe.antialiasing = false;
 		updateStripes();
 	}
 
