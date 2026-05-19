@@ -92,6 +92,10 @@ class PsychUIInputText extends FlxSpriteGroup {
 
 	public var inInsertMode:Bool = false;
 
+	// Tracks Caps Lock toggle state.
+	static var _capsLockState:Bool = false;
+	static var _capsLockKnown:Bool = false;
+
 	function onKeyDown(e:KeyboardEvent) {
 		if (focusOn != this)
 			return;
@@ -100,10 +104,25 @@ class PsychUIInputText extends FlxSpriteGroup {
 		var charCode:Int = e.charCode;
 		var flxKey:FlxKey = cast keyCode;
 
-		// Fix missing cedilla
+		// "I HATE THIS, WHY"
+		// Calibrate caps lock state from letter keypresses. openfl already applies
+		// `shift XOR capsLock` when computing charCode for A-Z, so we can derive
+		// caps lock by comparing the resulting case against shift state.
+		if (keyCode >= (FlxKey.A : Int) && keyCode <= (FlxKey.Z : Int) && charCode > 0) {
+			var isUpper:Bool = (charCode >= 0x41 && charCode <= 0x5A);
+			_capsLockState = (isUpper != e.shiftKey);
+			_capsLockKnown = true;
+		} else if (flxKey == CAPSLOCK) {
+			_capsLockState = !_capsLockState;
+			_capsLockKnown = true;
+		}
+
+		// Fix missing cedilla.
+		// fall back to shift-only behavior when caps state is still unknown.
 		switch (keyCode) {
 			case 231: // ç and Ç
-				charCode = e.shiftKey ? 0xC7 : 0xE7;
+				var uppercase:Bool = _capsLockKnown ? (e.shiftKey != _capsLockState) : e.shiftKey;
+				charCode = uppercase ? 0xC7 : 0xE7;
 		}
 
 		// Control key actions
@@ -211,7 +230,7 @@ class PsychUIInputText extends FlxSpriteGroup {
 			return;
 		}
 
-		static final ignored:Array<FlxKey> = [SHIFT, CONTROL, ESCAPE];
+		static final ignored:Array<FlxKey> = [SHIFT, CONTROL, ESCAPE, CAPSLOCK];
 		if (ignored.contains(flxKey))
 			return;
 
@@ -269,9 +288,18 @@ class PsychUIInputText extends FlxSpriteGroup {
 				if (selectIndex > -1 && selectIndex != caretIndex)
 					deleteSelection();
 				else {
+					// "I HATE THIS JUST AS MUCH"
 					var lastText = text;
-					text = text.substring(0, caretIndex - 1) + text.substring(caretIndex);
-					caretIndex--;
+					var newText:String = text.substring(0, caretIndex - 1) + text.substring(caretIndex);
+					// Move the caret BEFORE reassigning text. set_text rebuilds
+					// _boundaries and calls updateCaret(); if caretIndex still
+					// pointed past the new (shorter) end, that updateCaret would
+					// clamp it down to textLen, and the subsequent caretIndex--
+					// would then drop one position too many -- the visible
+					// "caret jumped one letter behind" bug. @:bypassAccessor
+					// avoids a redundant updateCaret pass from the setter.
+					@:bypassAccessor caretIndex = caretIndex - 1;
+					text = newText;
 					if (onChange != null)
 						onChange(lastText, text);
 					if (broadcastInputTextEvent)
@@ -647,12 +675,22 @@ class PsychUIInputText extends FlxSpriteGroup {
 		if (letter.length > 0 && (maxLength == 0 || (text.length + letter.length) <= maxLength)) {
 			var lastText = text;
 			// trace('Drawing character: $letter');
-			if (!inInsertMode)
-				text = text.substring(0, caretIndex) + letter + text.substring(caretIndex);
-			else
-				text = text.substring(0, caretIndex) + letter + text.substring(caretIndex + 1);
 
-			caretIndex += letter.length;
+			// "I HATE THIS EVEN MORE"
+			var newText:String;
+			if (!inInsertMode)
+				newText = text.substring(0, caretIndex) + letter + text.substring(caretIndex);
+			else
+				newText = text.substring(0, caretIndex) + letter + text.substring(caretIndex + 1);
+
+			// Advance the caret BEFORE assigning text so the updateCaret() that fires
+			// inside set_text already sees the new caretIndex against the freshly
+			// rebuilt _boundaries. Bypass the setter to avoid a redundant updateCaret
+			// pass that would otherwise leave a stale intermediate render where the
+			// caret appears behind (to the left of) the just-typed letter.
+			@:bypassAccessor caretIndex = caretIndex + letter.length;
+			text = newText;
+
 			if (onChange != null)
 				onChange(lastText, text);
 			if (broadcastInputTextEvent)
