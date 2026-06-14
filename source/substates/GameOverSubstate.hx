@@ -117,8 +117,14 @@ class GameOverSubstate extends MusicBeatSubstate {
 				neneKnife.animation.addByPrefix('anim', 'knife toss', 24, false);
 				neneKnife.antialiasing = ClientPrefs.data.antialiasing;
 				neneKnife.animation.finishCallback = function(_) {
-					remove(neneKnife);
-					neneKnife.destroy();
+					// Don't destroy mid-dispatch: flixel's fireFinishCallback runs this and
+					// then calls onFinish.dispatch(), so destroying here nukes the signal
+					// it's about to dispatch -> Null Object Reference. Defer it a frame.
+					neneKnife.visible = false;
+					new FlxTimer().start(0.001, function(_) {
+						remove(neneKnife);
+						neneKnife.destroy();
+					});
 				}
 				insert(0, neneKnife);
 				neneKnife.animation.play('anim', true);
