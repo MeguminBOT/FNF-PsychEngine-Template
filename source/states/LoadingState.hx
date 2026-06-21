@@ -37,7 +37,8 @@ class LoadingState extends MusicBeatState {
 
 	static var originalBitmapKeys:Map<String, String> = [];
 	static var requestedBitmaps:Map<String, BitmapData> = [];
-	static var mutex:Mutex;
+	static var mutex:Mutex; // guards asset maps; nulled in _loaded
+	static var progressMutex:Mutex = new Mutex(); // guards loaded/threadsCompleted counters
 	static var threadPool:FixedThreadPool = null;
 
 	function new(target:FlxState, stopMusic:Bool) {
@@ -316,15 +317,27 @@ class LoadingState extends MusicBeatState {
 	}
 
 	public static function checkLoaded():Bool {
-		for (key => bitmap in requestedBitmaps) {
-			if (bitmap != null
-				&& Paths.cacheBitmap(originalBitmapKeys.get(key), bitmap) != null) {} // trace('finished preloading image $key');
-			else
-				trace('failed to cache image $key');
+		/* swap out pending bitmaps under mutex, then cache on the main thread outside the lock */
+		var pending:Map<String, BitmapData> = null;
+		var pendingKeys:Map<String, String> = null;
+		if (mutex != null)
+			mutex.acquire();
+		if (requestedBitmaps.keys().hasNext()) {
+			pending = requestedBitmaps;
+			pendingKeys = originalBitmapKeys;
+			requestedBitmaps = new Map<String, BitmapData>();
+			originalBitmapKeys = new Map<String, String>();
 		}
-		requestedBitmaps.clear();
-		originalBitmapKeys.clear();
-		// trace('we checked if loaded');
+		if (mutex != null)
+			mutex.release();
+
+		if (pending != null) {
+			for (key => bitmap in pending) {
+				if (bitmap != null && Paths.cacheBitmap(pendingKeys.get(key), bitmap) != null) {}
+				else
+					trace('failed to cache image $key');
+			}
+		}
 		return (loaded >= loadMax && initialThreadCompleted);
 	}
 
@@ -385,7 +398,13 @@ class LoadingState extends MusicBeatState {
 	static var dontPreloadDefaultVoices:Bool = false;
 
 	static function _startPool() {
-		#if MULTITHREADED_LOADING
+		if (threadPool != null) // idempotent: one live pool per load
+			return;
+
+		if (mutex == null)
+			mutex = new Mutex();
+
+		#if (MULTITHREADED_LOADING && cpp)
 		// Due to the Main thread and Discord thread, we decrease it by 2.
 		var threadCount:Int = Std.int(Math.max(1, getCPUThreadsCount() - #if DISCORD_ALLOWED 2 #else 1 #end));
 		#else
@@ -416,9 +435,16 @@ class LoadingState extends MusicBeatState {
 		initialThreadCompleted = false;
 		var threadsCompleted:Int = 0;
 		var threadsMax:Int = 0;
+		var startedThreads:Bool = false;
 		function completedThread() {
+			progressMutex.acquire();
 			threadsCompleted++;
-			if (threadsCompleted == threadsMax) {
+			var doStart:Bool = (!startedThreads && threadsCompleted >= threadsMax); // fire once
+			if (doStart)
+				startedThreads = true;
+			progressMutex.release();
+
+			if (doStart) {
 				clearInvalids();
 				startThreads();
 				initialThreadCompleted = true;
@@ -537,6 +563,8 @@ class LoadingState extends MusicBeatState {
 					songsToPrepare.push(prefixVocals);
 			}
 
+			/* hold across both increments + scheduling so threadsMax is final before any completedThread() */
+			progressMutex.acquire();
 			if (player2 != player1) {
 				threadsMax++;
 				threadPool.run(() -> {
@@ -555,8 +583,12 @@ class LoadingState extends MusicBeatState {
 					completedThread();
 				});
 			}
+			var doStart:Bool = (!startedThreads && threadsCompleted >= threadsMax); // no/already-done threads
+			if (doStart)
+				startedThreads = true;
+			progressMutex.release();
 
-			if (threadsCompleted == threadsMax) {
+			if (doStart) {
 				clearInvalids();
 				startThreads();
 				initialThreadCompleted = true;
@@ -615,7 +647,8 @@ class LoadingState extends MusicBeatState {
 	}
 
 	public static function startThreads() {
-		mutex = new Mutex();
+		if (mutex == null) // owned by _startPool; don't replace (workers may hold it)
+			mutex = new Mutex();
 		loadMax = imagesToPrepare.length + soundsToPrepare.length + musicToPrepare.length + songsToPrepare.length;
 		loaded = 0;
 
@@ -659,9 +692,9 @@ class LoadingState extends MusicBeatState {
 			} catch (e:Dynamic) {
 				trace('ERROR! fail on preloading $traceData: $e');
 			}
-			// mutex.acquire();
+			progressMutex.acquire();
 			loaded++;
-			// mutex.release();
+			progressMutex.release();
 		});
 	}
 
