@@ -408,7 +408,7 @@ class Paths {
 	}
 
 	inline static public function formatToSongPath(path:String) {
-		final invalidChars = ~/[~&;:<>#\s]/g;
+		final invalidChars = ~/[~&;:<>#\s\/\\*?|]/g;
 		final hideChars = ~/[.,'"%?!]/g;
 
 		return hideChars.replace(invalidChars.replace(path, '-'), '').trim().toLowerCase();
