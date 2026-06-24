@@ -1809,11 +1809,22 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if (note != null)
 					notes.push(createNote(note, secNum));
 
+		var skippedEvents:Int = 0;
 		for (eventNum => event in PlayState.SONG.events)
 			if (event != null
 				&& (cachedSectionTimes.length < 1
 					|| event[0] < cachedSectionTimes[cachedSectionTimes.length - 1])) // dont spawn events over the time limit
+			{
+				// Skip corrupt events whose sub-event slot isn't an array (e.g. an older osu!
+				// convert that wrote `[time, 0]`); they carry no recoverable data.
+				if (!Std.isOfType(event[1], Array)) {
+					skippedEvents++;
+					continue;
+				}
 				events.push(createEvent(event));
+			}
+		if (skippedEvents > 0)
+			showOutput('Skipped $skippedEvents corrupt event(s) with no sub-event data (saving will remove them).', true);
 
 		notes.sort(PlayState.sortByTime);
 		events.sort(PlayState.sortByTime);

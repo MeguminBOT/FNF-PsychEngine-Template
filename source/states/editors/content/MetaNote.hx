@@ -134,7 +134,10 @@ class EventMetaNote extends MetaNote {
 	public function new(time:Float, eventData:Dynamic) {
 		super(time, -1, eventData);
 		this.isEvent = true;
-		events = eventData[1];
+		// Defend against corrupt charts where the sub-event slot isn't an array (e.g. an
+		// older osu! convert that wrote `[time, 0]`), which would null-ref updateEventText.
+		var sub:Dynamic = eventData[1];
+		events = (sub != null && Std.isOfType(sub, Array)) ? cast sub : [['', '', '']];
 		// trace('events: $events');
 
 		loadGraphic(Paths.image('editors/eventIcon'));
