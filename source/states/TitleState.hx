@@ -62,6 +62,9 @@ class TitleState extends MusicBeatState {
 		Paths.clearUnusedMemory();
 
 		if (!initialized) {
+			#if (CHECK_FOR_UPDATES && sys)
+			backend.updater.UpdateInstaller.cleanupOnBoot();
+			#end
 			ClientPrefs.loadPrefs();
 			flixel.FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
 			Language.reloadPhrases();

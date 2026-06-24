@@ -54,6 +54,9 @@ class Main extends Sprite {
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void {
+		#if (CHECK_FOR_UPDATES && sys && windows)
+		backend.updater.UpdateInstaller.applyPendingOnBoot();
+		#end
 		Lib.current.addChild(new Main());
 	}
 

@@ -155,6 +155,18 @@ class VisualsSettingsSubState extends BaseOptionsMenu {
 			'checkForUpdates',
 			BOOL);
 		addOption(option);
+
+		var channelOption:Option = new Option('Update Channel',
+			'Stable: official release builds.\nBleeding Edge: latest dev prereleases (may be unstable).',
+			'updateChannel',
+			STRING,
+			['Stable', 'Bleeding Edge']);
+		channelOption.getValue = function():Dynamic return (ClientPrefs.data.updateChannel == 'bleeding') ? 'Bleeding Edge' : 'Stable';
+		channelOption.setValue = function(value:Dynamic):Dynamic {
+			ClientPrefs.data.updateChannel = (value == 'Bleeding Edge') ? 'bleeding' : 'stable';
+			return value;
+		};
+		addOption(channelOption);
 		#end
 
 		#if DISCORD_ALLOWED
