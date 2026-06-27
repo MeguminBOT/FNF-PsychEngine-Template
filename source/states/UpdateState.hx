@@ -18,11 +18,16 @@ class UpdateState extends MusicBeatState {
 	var hintText:FlxText;
 
 	var logLines:Array<String> = [];
+
 	static inline var MAX_LOG_LINES:Int = 14;
 
 	var finished:Bool = false; // error or elevation: input enabled, no more work
 	var relaunchTimer:Float = -1; // >=0 once ready; counts down so "Restarting..." renders
 
+	/**
+	 * Creates a new UpdateState instance.
+	 * @param info The update information containing version and download details
+	 */
 	public function new(info:UpdateInfo) {
 		super();
 		this.info = info;
@@ -108,6 +113,10 @@ class UpdateState extends MusicBeatState {
 		}
 	}
 
+	/**
+	 * Retrieves and displays new log entries from the installer.
+	 * Maintains a maximum number of log lines by removing oldest entries.
+	 */
 	function drainLogs():Void {
 		var fresh:Array<String> = installer.popLogs();
 		if (fresh.length == 0)
@@ -119,6 +128,11 @@ class UpdateState extends MusicBeatState {
 		logText.text = logLines.join('\n');
 	}
 
+	/**
+	 * Converts an update phase identifier to a user-friendly label.
+	 * @param phase The current update phase
+	 * @return A localized label describing the update phase
+	 */
 	function phaseLabel(phase:String):String {
 		return switch (phase) {
 			case 'download-sums': 'Downloading checksums...';
@@ -133,6 +147,16 @@ class UpdateState extends MusicBeatState {
 		}
 	}
 
+	/**
+	 * Creates a styled text object for display on the update state.
+	 * @param x The x-coordinate of the text
+	 * @param y The y-coordinate of the text
+	 * @param w The width of the text field
+	 * @param text The text content to display
+	 * @param size The font size in pixels
+	 * @param align The text alignment
+	 * @return A formatted FlxText object
+	 */
 	function mkText(x:Float, y:Float, w:Float, text:String, size:Int, align:flixel.text.FlxTextAlign):FlxText {
 		var t:FlxText = new FlxText(x, y, w, text, size);
 		t.setFormat(Paths.font('vcr.ttf'), size, FlxColor.WHITE, align, OUTLINE, FlxColor.BLACK);

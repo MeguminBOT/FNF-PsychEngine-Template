@@ -10,7 +10,6 @@ enum abstract UpdateChannel(String) from String to String {
 }
 
 typedef ReleaseAsset = {name:String, url:String, digest:String};
-
 typedef ReleaseEntry = {tag:String, prerelease:Bool, body:String, assets:Array<ReleaseAsset>};
 
 typedef UpdateInfo = {
@@ -24,6 +23,10 @@ typedef UpdateInfo = {
 	body:String
 };
 
+/**
+ * Manages application update checking and resolution from GitHub releases.
+ * Provides background update checks with thread-safe state management and version resolution.
+ */
 class UpdateManager {
 	public static inline var REPO:String = 'MeguminBOT/FNF-PsychEngine';
 	static inline var RELEASES_URL:String = 'https://api.github.com/repos/MeguminBOT/FNF-PsychEngine/releases';
@@ -43,6 +46,10 @@ class UpdateManager {
 	static var _mutex:sys.thread.Mutex = new sys.thread.Mutex();
 	#end
 
+	/**
+	 * Starts an update check on a background thread.
+	 * @param channel The update channel to check.
+	 */
 	public static function beginBackgroundCheck(channel:UpdateChannel):Void {
 		#if sys
 		_mutex.acquire();
@@ -80,6 +87,10 @@ class UpdateManager {
 		#end
 	}
 
+	/**
+	 * Fetches all releases from the GitHub API.
+	 * @return An array of release entries with tag, prerelease status, and assets
+	 */
 	public static function fetchReleases():Array<ReleaseEntry> {
 		var raw:String = httpGet(RELEASES_URL);
 		if (raw == null || raw.length == 0)
@@ -120,6 +131,13 @@ class UpdateManager {
 		return out;
 	}
 
+	/**
+	 * Resolves the best available update for a given channel from a list of releases.
+	 * Filters by channel eligibility and selects the newest compatible version.
+	 * @param channel The update channel to resolve for
+	 * @param releases The array of available releases
+	 * @return An UpdateInfo object for the best available update, or null if none found
+	 */
 	public static function resolve(channel:UpdateChannel, releases:Array<ReleaseEntry>):UpdateInfo {
 		if (releases == null || releases.length == 0)
 			return null;
@@ -189,6 +207,11 @@ class UpdateManager {
 		};
 	}
 
+	/**
+	 * Checks if an update is newer than the current engine version.
+	 * @param info The update information to check
+	 * @return True if the update version is newer than the running version
+	 */
 	public static function isNewer(info:UpdateInfo):Bool {
 		if (info == null)
 			return false;
@@ -204,6 +227,11 @@ class UpdateManager {
 		return null;
 	}
 
+	/**
+	 * Performs an HTTP GET request with GitHub API headers.
+	 * @param url The URL to request
+	 * @return The response body as a string
+	 */
 	static function httpGet(url:String):String {
 		var http = new haxe.Http(url);
 		http.setHeader('User-Agent', 'FNF-PsychEngine-Updater');
