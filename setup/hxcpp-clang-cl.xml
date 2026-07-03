@@ -1,0 +1,61 @@
+<xml>
+
+<!--
+   Compile the Windows target with clang-cl instead of MSVC cl.
+
+   This is NOT a standalone toolchain: hxcpp still runs its normal msvc
+   toolchain (vcvars environment, link.exe, rc.exe, mt.exe, PCH flags) and this
+   file merges over the MSVC compiler definition afterwards, swapping the
+   compiler executable. clang-cl accepts cl-style flags and targets the MSVC
+   ABI, so objects still link with the MSVC linker and MSVC-built static libs.
+
+   Wiring: ~/.hxcpp_config.xml includes this file from its "exes" section
+   (which hxcpp parses AFTER msvc-toolchain.xml) when HXCPP_CLANG_CL is
+   defined. Enable with:  lime build windows -DHXCPP_CLANG_CL
+-->
+
+<compiler id="MSVC" exe="clang-cl.exe" if="windows">
+
+   <!-- cl.exe prints its banner on stderr with no args; clang-cl needs -v to
+        put its version on stderr (used for the compile-cache key). -->
+   <getversion value="clang-cl.exe -v"/>
+
+   <!-- Keep clang objects out of the msvc obj dir so the two compilers never
+        mix in an incremental build. -->
+   <objdir value="obj/clang-cl${OBJEXT}${OBJCACHE}${XPOBJ}"/>
+
+   <!-- cl-style flags clang-cl accepts but warns about (e.g. -FS, -Zc:inline,
+        -GL) would otherwise spam every compile line. -->
+   <flag value="-Wno-unused-command-line-argument"/>
+
+   <!-- hxcpp's generated code and headers are developed against cl/gcc; these
+        are the known-noisy-but-harmless clang diagnostics for it. -->
+   <flag value="-Wno-invalid-offsetof"/>
+   <flag value="-Wno-parentheses-equality"/>
+   <flag value="-Wno-parentheses"/>
+   <flag value="-Wno-deprecated-declarations"/>
+   <flag value="-Wno-microsoft-cast"/>
+   <flag value="-Wno-microsoft-include"/>
+   <flag value="-Wno-unknown-pragmas"/>
+   <flag value="-Wno-ignored-attributes"/>
+   <flag value="-Wno-ignored-pragma-intrinsic"/>
+   <flag value="-Wno-nonportable-include-path"/>
+
+</compiler>
+
+<!-- LLVM linkers: drop-in replacements for link.exe / lib.exe taking the same
+     flags. A merged linker tag can't change an already-set exe attribute, but
+     the <exe> child element force-overrides it. mt.exe/rc.exe stay MSVC.
+     Note: lld has no incremental linking (it is just fast) and no
+     -debug:fastlink; avoid HXCPP_FAST_LINK with this setup. -->
+<linker id="exe" if="windows">
+   <exe name="lld-link.exe"/>
+</linker>
+<linker id="dll" if="windows">
+   <exe name="lld-link.exe"/>
+</linker>
+<linker id="static_link" if="windows">
+   <exe name="llvm-lib.exe"/>
+</linker>
+
+</xml>

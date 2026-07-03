@@ -128,6 +128,8 @@
 	<!-- Disable Discord IO Thread -->
 	<haxedef name="DISCORD_DISABLE_IO_THREAD" if="hxdiscord_rpc" />
 	<haxedef name="NO_PRECOMPILED_HEADERS" if="linux" />
+	<!-- Compile the windows target with clang-cl + lld (setup/hxcpp-clang-cl.xml): lime build windows -Dclang -->
+	<haxedef name="HXCPP_CLANG_CL" if="windows clang" />
 
 	<!-- Enables a terminal log prompt on debug builds -->
 	<haxelib name="hxcpp-debug-server" if="debug"/>
