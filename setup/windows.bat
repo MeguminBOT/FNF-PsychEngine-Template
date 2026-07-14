@@ -12,7 +12,7 @@ echo.
 echo Installing hxcpp from git first (so no haxelib installs outdated versions)...
 echo.
 
-call :installGit hxcpp https://github.com/HaxeFoundation/hxcpp
+call :installGit hxcpp https://github.com/HaxeFoundation/hxcpp v4.3.143
 
 echo.
 echo Installing haxelib dependencies (--skip-dependencies, all transitive deps are manually asserted)...
@@ -28,7 +28,7 @@ call haxelib install hscript-iris       1.1.3  --quiet --always --skip-dependenc
 call haxelib install hscript            2.7.0  --quiet --always --skip-dependencies
 call haxelib install hxcpp-debug-server 1.2.4  --quiet --always --skip-dependencies
 call haxelib install hxdiscord_rpc      1.3.0  --quiet --always --skip-dependencies
-call haxelib install hxvlc              2.2.6  --quiet --always --skip-dependencies
+call haxelib install hxvlc              2.3.0  --quiet --always --skip-dependencies
 call haxelib install tink_core          1.26.0 --quiet --always --skip-dependencies
 call haxelib install tjson              1.4.0  --quiet --always --skip-dependencies
 call haxelib install thx.core           0.44.0 --quiet --always --skip-dependencies
@@ -76,7 +76,7 @@ pause
 exit /b 0
 
 :installGit
-rem %1 = library name, %2 = git url
+rem %1 = library name, %2 = git url, %3 = optional git ref/commit to pin
 rem Translate dots in lib name to commas for the on-disk folder (haxelib's encoding).
 set "LIB_DIR=%~1"
 set "LIB_DIR=!LIB_DIR:.=,!"
@@ -86,5 +86,5 @@ if exist ".haxelib\!LIB_DIR!" (
 	attrib -r -s -h ".haxelib\!LIB_DIR!\*.*" /s /d >nul 2>&1
 	rmdir /s /q ".haxelib\!LIB_DIR!"
 )
-call haxelib git %~1 %~2 --skip-dependencies
+call haxelib git %~1 %~2 %~3 --skip-dependencies
 exit /b 0

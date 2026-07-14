@@ -6,26 +6,26 @@ cd ..
 
 set -e
 
-echo "Setting up global haxelib repository at ~/haxelib ..."
-mkdir -p ~/haxelib
-haxelib setup ~/haxelib
+echo "Setting up local haxelib repository ..."
+haxelib newrepo
 
 # Wipe any leftover folder so haxelib never hits sys_remove_dir on read-only .git files.
 install_git () {
 	name="$1"
 	url="$2"
+	ref="$3" # optional git ref/commit to pin
 	repo_root="$(haxelib config 2>/dev/null | tr -d '\r')"
 	if [ -n "$repo_root" ] && [ -d "$repo_root/$name" ]; then
 		echo "Cleaning existing $repo_root/$name ..."
 		chmod -R u+w "$repo_root/$name" 2>/dev/null || true
 		rm -rf "$repo_root/$name"
 	fi
-	haxelib git "$name" "$url" --skip-dependencies
+	haxelib git "$name" "$url" $ref --skip-dependencies
 }
 
 echo
 echo "Installing hxcpp from git first (so no haxelib release of hxcpp ever lands on disk)..."
-install_git hxcpp https://github.com/HaxeFoundation/hxcpp
+install_git hxcpp https://github.com/HaxeFoundation/hxcpp v4.3.143
 
 echo
 echo "Installing haxelib dependencies (--skip-dependencies, all transitive deps are pinned below)..."
@@ -40,7 +40,7 @@ haxelib install hscript-iris       1.1.3  --quiet --always --skip-dependencies
 haxelib install hscript            2.7.0  --quiet --always --skip-dependencies
 haxelib install hxcpp-debug-server 1.2.4  --quiet --always --skip-dependencies
 haxelib install hxdiscord_rpc      1.3.0  --quiet --always --skip-dependencies
-haxelib install hxvlc              2.2.6  --quiet --always --skip-dependencies
+haxelib install hxvlc              2.3.0  --quiet --always --skip-dependencies
 haxelib install tink_core          1.26.0 --quiet --always --skip-dependencies
 haxelib install tjson              1.4.0  --quiet --always --skip-dependencies
 haxelib install thx.core           0.44.0 --quiet --always --skip-dependencies
