@@ -2,6 +2,16 @@
 
 Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
 
+## About this branch (`psych-1.0.4-fixes`)
+
+This is **stock Psych Engine 1.0.4** with only **modern-toolchain updates, bug fixes, and
+performance work** backported on top of it — a clean base for anyone making forks or still on 1.0.4 but wants a more stable and faster experience.
+
+So this can be considered Psych Engine 1.0.5 basically and that's what the engine will report itself as.
+
+See **[docs/CHANGES.md](docs/CHANGES.md)** for the full, commit-linked list of everything
+changed versus stock 1.0.4.
+
 ## Installation:
 
 Refer to [the Build Instructions](/docs/BUILDING.md)
@@ -40,6 +50,9 @@ There you can learn how to use the 212 PlayState funcions in your mod!
 * CheemsAndFriends - Creator of FlxAnimate.
 * Ezhalt - Pessy's Easter Egg Jingle.
 * MaliciousBunny - Video for the Final Update.
+
+### Misc
+* MeguminBOT / AutsticLulu - Maintenance / Bugfixing / Perf-work
 
 ***
 
