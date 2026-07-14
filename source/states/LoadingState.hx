@@ -450,7 +450,10 @@ class LoadingState extends MusicBeatState {
 	/* route a preload object's fields (images/sounds/music/...) into the given lists by prefix */
 	static function collectPreloadAssets(json:Dynamic, imgs:Array<String>, snds:Array<String>, mscs:Array<String>) {
 		for (asset in Reflect.fields(json)) {
-			var filters:Int = Reflect.field(json, asset);
+			// Std.int the raw value: JSON numbers can arrive as Float behind Dynamic,
+			// and a bare Int assign (or bitwise op) on that miscompiles on hxcpp,
+			// silently zeroing the filter bitmask so the asset never preloads.
+			var filters:Int = Std.int(Reflect.field(json, asset));
 			var asset:String = asset.trim();
 			if (filters < 0 || StageData.validateVisibility(filters)) {
 				if (asset.startsWith('images/'))
@@ -539,9 +542,11 @@ class LoadingState extends MusicBeatState {
 
 					if (stageData.objects != null) {
 						for (sprite in stageData.objects) {
-							if (sprite.type == 'sprite' || sprite.type == 'animatedSprite')
-								if ((sprite.filters < 0 || StageData.validateVisibility(sprite.filters)) && !imgs.contains(sprite.image))
+							if (sprite.type == 'sprite' || sprite.type == 'animatedSprite') {
+								var sFilters:Int = (sprite.filters == null) ? 0 : Std.int(sprite.filters);
+								if ((sFilters < 0 || StageData.validateVisibility(sFilters)) && !imgs.contains(sprite.image))
 									imgs.push(sprite.image);
+							}
 						}
 					}
 					prepare(imgs, snds, mscs);

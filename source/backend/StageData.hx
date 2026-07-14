@@ -157,7 +157,10 @@ class StageData {
 					}
 
 				case 'square', 'sprite', 'animatedSprite':
-					if (!ignoreFilters && !validateVisibility(data.filters))
+					// Coerce through Std.int: filters read straight off the Dynamic JSON
+					// can be a Float, which miscompiles the bitmask checks on hxcpp.
+					var objFilters:Int = (data.filters == null) ? 0 : Std.int(data.filters);
+					if (!ignoreFilters && !validateVisibility(objFilters))
 						continue;
 
 					var spr:ModchartSprite = new ModchartSprite(data.x, data.y);
