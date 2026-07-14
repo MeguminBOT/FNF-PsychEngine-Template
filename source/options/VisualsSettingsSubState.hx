@@ -6,6 +6,9 @@ import objects.NoteSplash;
 import objects.Alphabet;
 
 class VisualsSettingsSubState extends BaseOptionsMenu {
+	// Sentinel marking the "open FPS Counter Settings" opener row (see update()).
+	static inline final OPEN_FPS_SETTINGS_VAR:String = '__openFPSSettings';
+
 	var noteOptionID:Int = -1;
 	var notes:FlxTypedGroup<StrumNote>;
 	var splashes:FlxTypedGroup<NoteSplash>;
@@ -122,8 +125,20 @@ class VisualsSettingsSubState extends BaseOptionsMenu {
 			'If unchecked, hides FPS Counter.',
 			'showFPS',
 			BOOL);
+		FPSCounterSettingsSubState.bindDebugOption(option); // stored in DebugPrefs, not ClientPrefs
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
+
+		// Opener row for the FPS counter customization submenu. Decorative BOOL
+		// that always reads true; update() below intercepts ACCEPT on it.
+		var openFPS:Option = new Option('FPS Counter Settings...',
+			"Customize the performance counter: position, font size, update rate and which metrics (FPS, Memory, CPU, GPU) are shown.\nPress ACCEPT to open.",
+			OPEN_FPS_SETTINGS_VAR,
+			BOOL);
+		openFPS.defaultValue = true;
+		openFPS.getValue = function():Dynamic return true;
+		openFPS.setValue = function(v:Dynamic):Dynamic return true;
+		addOption(openFPS);
 		#end
 		
 		var option:Option = new Option('Pause Music:',
@@ -162,6 +177,22 @@ class VisualsSettingsSubState extends BaseOptionsMenu {
 	}
 
 	var notesShown:Bool = false;
+
+	#if !mobile
+	override function update(elapsed:Float):Void {
+		// Intercept ACCEPT on the opener row BEFORE super.update() toggles its
+		// BOOL value. Mirrors the guards super.update() uses.
+		if (!bindingKey && nextAccept <= 0 && controls.ACCEPT
+			&& optionsArray[curSelected].variable == OPEN_FPS_SETTINGS_VAR) {
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+			openSubState(new FPSCounterSettingsSubState());
+			nextAccept = 5;
+			return;
+		}
+
+		super.update(elapsed);
+	}
+	#end
 
 	override function changeSelection(change:Int = 0) {
 		super.changeSelection(change);
@@ -278,7 +309,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu {
 	#if !mobile
 	function onChangeFPSCounter() {
 		if (Main.fpsVar != null)
-			Main.fpsVar.visible = ClientPrefs.data.showFPS;
+			Main.fpsVar.visible = DebugPrefs.data.showFPS;
 	}
 	#end
 }

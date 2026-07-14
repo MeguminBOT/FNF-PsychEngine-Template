@@ -98,6 +98,12 @@
 			"url": "https://github.com/MAJigsaw77/hxluajit-wrapper"
 		},
 		{
+			"name": "hxhardware",
+			"type": "git",
+			"dir": null,
+			"url": "https://github.com/Vortex2Oblivion/hxhardware"
+		},
+		{
 			"name": "tink_core",
 			"type": "haxelib",
 			"version": "2.1.1",

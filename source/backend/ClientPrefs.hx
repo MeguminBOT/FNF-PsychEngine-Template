@@ -10,7 +10,9 @@ import states.TitleState;
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
-	public var showFPS:Bool = true;
+	// NOTE: the debug/performance counter settings (showFPS + fps*) live in
+	// backend.DebugPrefs, in their own save file, so mod scripts can't tamper
+	// with them via ClientPrefs.data. See DebugPrefs for the field list.
 	public var flashing:Bool = true;
 	public var autoPause:Bool = true;
 	public var antialiasing:Bool = true;
@@ -156,6 +158,9 @@ class ClientPrefs {
 		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
 		FlxG.save.flush();
 
+		// Debug-counter settings live in their own (script-inaccessible) save.
+		DebugPrefs.save();
+
 		// Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v3', CoolUtil.getSavePath());
@@ -172,8 +177,14 @@ class ClientPrefs {
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
 
-		if (Main.fpsVar != null)
-			Main.fpsVar.visible = data.showFPS;
+		// Load the separate debug-counter save (migrates any legacy values out of
+		// the main save on first run).
+		DebugPrefs.load();
+
+		if (Main.fpsVar != null) {
+			Main.fpsVar.visible = DebugPrefs.data.showFPS;
+			Main.fpsVar.updateConfiguration();
+		}
 
 		#if (!html5 && !switch)
 		FlxG.autoPause = ClientPrefs.data.autoPause;

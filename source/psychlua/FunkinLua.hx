@@ -49,9 +49,37 @@ class FunkinLua {
 
 	public static var customFunctions:Map<String, Dynamic> = new Map<String, Dynamic>();
 
+	// Registry of every FunkinLua with a live `lua` state, so the FPS counter
+	// (and anything else) can total LuaJIT's GC memory across all scripts.
+	// LuaJIT uses its own heap, separate from hxcpp's cpp.vm.Gc, so this is the
+	// only way to see Lua memory broken out.
+	public static var instances:Array<FunkinLua> = [];
+
+	/**
+	 * Total memory currently held by every live Lua state, in bytes.
+	 * Uses `lua_gc(LUA_GCCOUNT)` (Kbytes) + `LUA_GCCOUNTB` (byte remainder).
+	 */
+	public static function totalLuaMemoryBytes():Float {
+		var total:Float = 0;
+		for (inst in instances) {
+			if (inst == null || inst.closed)
+				continue;
+			final st = inst.lua;
+			if (st == null)
+				continue;
+			final kb:Int = Lua.gc(st, Lua.GCCOUNT, 0);
+			if (kb < 0)
+				continue;
+			final rem:Int = Lua.gc(st, Lua.GCCOUNTB, 0);
+			total += kb * 1024.0 + (rem > 0 ? rem : 0);
+		}
+		return total;
+	}
+
 	public function new(scriptName:String) {
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
+		instances.push(this); // track for Lua GC memory totals
 
 		// trace('Lua version: ' + Lua.version());
 		// trace("LuaJIT version: " + Lua.versionJIT());
@@ -1630,6 +1658,7 @@ class FunkinLua {
 
 	public function stop() {
 		closed = true;
+		instances.remove(this);
 
 		if (lua == null) {
 			return;

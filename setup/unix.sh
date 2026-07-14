@@ -52,6 +52,8 @@ install_git funkin.vis       https://github.com/FunkinCrew/funkVis
 install_git grig.audio       https://gitlab.com/haxe-grig/grig.audio
 install_git hxluajit         https://github.com/MAJigsaw77/hxluajit
 install_git hxluajit-wrapper https://github.com/MAJigsaw77/hxluajit-wrapper
+# CPU/GPU/memory metrics for the FPS counter (HARDWARE_ALLOWED); native C++, not on haxelib.
+install_git hxhardware       https://github.com/Vortex2Oblivion/hxhardware
 
 echo
 echo "Re-asserting hxcpp = git and wiping any release version folders that snuck in..."
