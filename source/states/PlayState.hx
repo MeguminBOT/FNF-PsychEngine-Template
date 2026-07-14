@@ -843,6 +843,31 @@ class PlayState extends MusicBeatState {
 
 	public var videoCutscene:VideoSprite = null;
 
+	/** Videos warmed by `precacheVideo`, keyed by name, adopted on the matching `startVideo` call. */
+	public var precachedVideos:Map<String, VideoSprite> = new Map<String, VideoSprite>();
+
+	/**
+	 * Warms a video ahead of time so the matching `startVideo` starts without the open/decode hitch.
+	 * Pass the same `forMidSong`/`canSkip`/`loop` you'll later hand to `startVideo`; a mismatch on
+	 * `forMidSong` or `loop` (which are baked in at load time) discards the warmed copy and rebuilds.
+	 */
+	public function precacheVideo(name:String, forMidSong:Bool = false, canSkip:Bool = true, loop:Bool = false):Void {
+		#if VIDEOS_ALLOWED
+		if (precachedVideos.exists(name))
+			return;
+
+		final fileName:String = Paths.video(name);
+		#if sys
+		if (!FileSystem.exists(fileName))
+		#else
+		if (!OpenFlAssets.exists(fileName))
+		#end
+			return;
+
+		precachedVideos.set(name, new VideoSprite(fileName, forMidSong, canSkip, loop, true));
+		#end
+	}
+
 	public function startVideo(name:String, forMidSong:Bool = false, canSkip:Bool = true, loop:Bool = false, playOnLoad:Bool = true) {
 		#if VIDEOS_ALLOWED
 		inCutscene = !forMidSong;
@@ -859,7 +884,18 @@ class PlayState extends MusicBeatState {
 		foundFile = true;
 
 		if (foundFile) {
-			videoCutscene = new VideoSprite(fileName, forMidSong, canSkip, loop);
+			var reused:VideoSprite = precachedVideos.get(name);
+			if (reused != null) {
+				precachedVideos.remove(name);
+				// The warmed copy is only valid if the load-time options match; otherwise rebuild.
+				if (reused.waiting != forMidSong || reused.looping != loop) {
+					reused.destroy();
+					reused = null;
+				}
+			}
+
+			videoCutscene = reused != null ? reused : new VideoSprite(fileName, forMidSong, canSkip, loop);
+			videoCutscene.canSkip = canSkip;
 			if (forMidSong)
 				videoCutscene.videoSprite.bitmap.rate = playbackRate;
 
@@ -3294,6 +3330,10 @@ class PlayState extends MusicBeatState {
 			videoCutscene.destroy();
 			videoCutscene = null;
 		}
+		for (vid in precachedVideos)
+			if (vid != null)
+				vid.destroy();
+		precachedVideos.clear();
 		#end
 
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
