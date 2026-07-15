@@ -246,3 +246,19 @@ Repacked base-game/shared spritesheets (smaller atlases; frame names preserved).
 - **Health icons default to CPU caching** — GPU-cached bitmaps null their CPU image, and openfl
   9.5.2's `getTexture` can't re-upload after a texture invalidation, blanking the persistent
   health icons. Icons are tiny, so CPU residency is free.
+
+---
+
+## Backported from master (later perf & bug fixes)
+
+Base-applicable fixes cherry-picked from the fork's newer `master` commits (feature-coupled
+ones — note-V2, osu!, mobile, psych_v2, reworked editors — were left out):
+
+- [`5ddcd97`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/5ddcd97ed6430b6b05b06c58c208ac4bd9f9ab3a) — Character: type animOffsets as Float pairs + clamp negative shoot frame index
+- [`8b015b4`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/8b015b481e909f14a856fd80d4ce97bf17c63bc7) — StageData: guard missing stage-sprite scroll/color fields
+- [`4ef752b`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/4ef752bf364e50910faa4fe911e303585253dbc8) — Conductor: skip judgement tiers with an unset hit window
+- [`0966be7`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/0966be735c2dff68ba090153e2781a49d424fbd9) — GameplayChangersSubstate: store the resolved option default and type the options array
+- [`ec3c9e4`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/ec3c9e49d69dd316ec8333d8df658d9373e84f5a) — DialogueBoxPsych: only stop the music this dialogue started
+- [`6d10c64`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/6d10c64377711d9a1b79178c4c6f919eee6ae240) — PlayState: fire pending events on generate (was an inverted guard)
+- [`cb7d045`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/cb7d0452929e5bafba0cdd97fb8784e6195ecc0d) — Paths/Alphabet: reuse parsed atlases instead of re-reading the description (perf)
+- [`00f48a7`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/00f48a7c4e6f04dc1ec55ef5cf2a5e09c4dc2d6c) — CoolUtil: parse JSON with haxe.Json, falling back to TJSON (perf; base callers only)
