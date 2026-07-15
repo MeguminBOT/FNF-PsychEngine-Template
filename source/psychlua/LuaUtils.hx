@@ -124,7 +124,7 @@ class LuaUtils {
 				var data:String = File.getContent(path);
 				try {
 					// FunkinLua.luaTrace('getModSetting: Trying to find default value for "$saveTag" in Mod: "$modName"');
-					var parsedJson:Dynamic = tjson.TJSON.parse(data);
+					var parsedJson:Dynamic = CoolUtil.parseJson(data);
 					if (!Std.isOfType(parsedJson, Array)) {
 						// settings.json must be a JSON array of option entries;
 						// the previous code blindly read .length and looped,

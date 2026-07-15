@@ -4,6 +4,22 @@ import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
 
 class CoolUtil {
+	/**
+	 * Parses JSON with the strict parser, falling back to TJSON.
+	 *
+	 * `haxe.Json` is substantially faster, but TJSON tolerates the hand-written sloppiness mods rely
+	 * on (comments, trailing commas, unquoted keys). Valid JSON is the overwhelming majority, so it
+	 * shouldn't pay for leniency only malformed files need. Nothing that parsed before stops parsing,
+	 * and if both fail it throws TJSON's error, so callers' try/catch behave as they did.
+	 */
+	public static function parseJson(raw:String):Dynamic {
+		try {
+			return haxe.Json.parse(raw);
+		} catch (error:Dynamic) {
+			return tjson.TJSON.parse(raw);
+		}
+	}
+
 	public static function checkForUpdates(url:String = null):String {
 		if (url == null || url.length == 0)
 			url = "https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt";

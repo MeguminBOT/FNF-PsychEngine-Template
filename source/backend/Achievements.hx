@@ -244,7 +244,7 @@ class Achievements {
 			try {
 				var rawJson:String = File.getContent(path).trim();
 				if (rawJson != null && rawJson.length > 0)
-					retVal = tjson.TJSON.parse(rawJson); // Json.parse('{"achievements": $rawJson}').achievements;
+					retVal = CoolUtil.parseJson(rawJson); // Json.parse('{"achievements": $rawJson}').achievements;
 
 				if (addMods && retVal != null) {
 					for (i in 0...retVal.length) {

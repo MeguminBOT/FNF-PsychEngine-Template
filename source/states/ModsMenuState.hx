@@ -782,7 +782,7 @@ class ModItem extends FlxSpriteGroup {
 		if (FileSystem.exists(path)) {
 			try {
 				// trace('trying to load settings: $folder');
-				settings = tjson.TJSON.parse(File.getContent(path));
+				settings = cast CoolUtil.parseJson(File.getContent(path));
 			} catch (e:Dynamic) {
 				var errorTitle = 'Mod name: ' + Mods.currentModDirectory;
 				var errorMsg = 'An error occurred: $e';
