@@ -202,8 +202,10 @@ class StageData {
 						spr.scale.set(data.scale[0], data.scale[1]);
 						spr.updateHitbox();
 					}
-					spr.scrollFactor.set(data.scroll[0], data.scroll[1]);
-					spr.color = CoolUtil.colorFromString(data.color);
+					if (data.scroll != null)
+						spr.scrollFactor.set(data.scroll[0], data.scroll[1]);
+					if (data.color != null)
+						spr.color = CoolUtil.colorFromString(data.color);
 
 					for (varName in ['alpha', 'angle']) {
 						var dat:Dynamic = Reflect.getProperty(data, varName);
