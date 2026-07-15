@@ -310,6 +310,42 @@ class AlphaCharacter extends FlxSprite {
 
 	public var curLetter:Letter = null;
 
+	/**
+	 * Resolved frame indices per `graphic key + animation name`.
+	 *
+	 * Keyed by `FlxGraphic.key` because it encodes the mod path, so a mod overriding the atlas gets
+	 * its own entry, and a graphic reloaded after a memory clear re-parses the same XML in the same
+	 * order — meaning cached indices stay valid.
+	 */
+	static var animIndexCache:Map<String, Array<Int>> = new Map();
+
+	/**
+	 * `addByPrefix`, but the atlas is only scanned the first time each animation is seen — it walks
+	 * every frame in the atlas (1056 for the stock alphabet) and re-sorts the matches, and one of
+	 * these is built per LETTER.
+	 */
+	function addAnimCached(anim:String):Void {
+		var graphicKey:String = (frames != null && frames.parent != null) ? frames.parent.key : null;
+		if (graphicKey == null) {
+			animation.addByPrefix(anim, anim, 24);
+			return;
+		}
+
+		var cacheKey:String = '$graphicKey|$anim';
+		var indices:Array<Int> = animIndexCache.get(cacheKey);
+		if (indices == null) {
+			animation.addByPrefix(anim, anim, 24);
+			var built:flixel.animation.FlxAnimation = animation.getByName(anim);
+			// A prefix that matched nothing caches empty, so the miss isn't re-scanned per letter.
+			animIndexCache.set(cacheKey, built != null && built.frames != null ? built.frames : []);
+			return;
+		}
+
+		// Sharing the array is safe: add() copies before pruning, destroy() only drops its own ref.
+		if (indices.length > 0)
+			animation.add(anim, indices, 24);
+	}
+
 	public function setupAlphaCharacter(x:Float, y:Float, ?character:String = null, ?bold:Null<Bool> = null) {
 		this.x = x;
 		this.y = y;
@@ -347,13 +383,13 @@ class AlphaCharacter extends FlxSprite {
 				alphaAnim = curLetter.anim;
 
 			var anim:String = alphaAnim + postfix;
-			animation.addByPrefix(anim, anim, 24);
+			addAnimCached(anim);
 			animation.play(anim, true);
 			if (animation.curAnim == null) {
 				if (postfix != ' bold')
 					postfix = ' normal';
 				anim = 'question' + postfix;
-				animation.addByPrefix(anim, anim, 24);
+				addAnimCached(anim);
 				animation.play(anim, true);
 			}
 		}
