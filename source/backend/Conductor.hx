@@ -26,9 +26,11 @@ class Conductor {
 	{
 		if (arr == null || arr.length == 0) return null;
 		final last:Int = arr.length - 1;
-		for (i in 0...last) // skips last window (Shit)
-			if (diff <= arr[i].hitWindow)
+		for (i in 0...last) { // skips last window (Shit)
+			final hw:Null<Float> = arr[i].hitWindow;
+			if (hw != null && diff <= hw)
 				return arr[i];
+		}
 
 		return arr[last];
 	}
