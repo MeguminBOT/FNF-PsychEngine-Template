@@ -4,8 +4,14 @@ Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), 
 
 ## About this branch (`psych-1.0.4-fixes`)
 
-This is **stock Psych Engine 1.0.4** with only **modern-toolchain updates, bug fixes, and
-performance work** backported on top of it — a clean base for anyone making forks or still on 1.0.4 but wants a more stable and faster experience.
+This is **stock Psych Engine 1.0.4** with **modern-toolchain updates, bug fixes, and
+performance work** backported on top of it, plus a few opt-in extras — a CPU/GPU/memory FPS
+counter, video precaching, clang-cl build support, and an **in-engine self-updater** that pulls
+from this repo's GitHub Releases. A clean base for anyone making forks or still on 1.0.4 who
+wants a more stable and faster experience.
+
+It leaves out the fork's larger rewrites (Note System V2, osu! converter, Android port, reworked
+editors, SmidrUI, `hscript-insanity` — Iris is kept).
 
 So this can be considered Psych Engine 1.0.5 basically and that's what the engine will report itself as.
 

@@ -1,10 +1,13 @@
 # Psych 1.0.4 — Clean Fixes Changelog
 
 This branch (**`psych-1.0.4-fixes`**) is [Psych Engine **1.0.4**](https://github.com/ShadowMario/FNF-PsychEngine/commit/5c67ced49e5a98535298a6daa3f8f4ec79ac8399)
-with **only** haxelib/toolchain updates, bug fixes, and performance work backported from PE Continued.
+with haxelib/toolchain updates, bug fixes, and performance work backported from PE Continued,
+plus a few opt-in conveniences: a CPU/GPU/memory FPS counter, video precaching, clang-cl build
+support, and an in-engine **self-updater** (pointed at this Template repo).
 
-The goal is a clean, modern-toolchain base that people still on stock Psych 1.0.4 can
-build against and cherry-pick from.
+It leaves out the fork's larger rewrites — no Note System V2, osu! converter, Android port,
+reworked editors, SmidrUI, or `hscript-insanity`. The goal is a clean, modern-toolchain base
+that people still on stock Psych 1.0.4 can build against and cherry-pick from.
 
 Baseline: [`5c67ced`](https://github.com/ShadowMario/FNF-PsychEngine/commit/5c67ced49e5a98535298a6daa3f8f4ec79ac8399)
 ("Update gitVersion.txt", 2025-03-24) — stock Psych Engine 1.0.4.
@@ -63,16 +66,21 @@ Fixes song-load softlocks in the multithreaded loader (single-task prep, stall w
 
 ---
 
-## Ported additions (non-feature: perf/tooling only)
+## Ported additions (opt-in extras)
 
-Small, self-contained additions that don't introduce new gameplay systems — a
+Self-contained conveniences that don't touch the gameplay/format/UI internals — a
 CPU/GPU/memory **FPS counter** overlay with its pre-SmidrUI options submenu
 (`hxhardware`/`DebugPrefs`), **video precaching** (hxvlc 2.3.0 `precache()` +
-`VideoSprite` reuse), and **clang-cl** Windows build support:
+`VideoSprite` reuse), **clang-cl** Windows build support, and an in-engine
+**self-updater** that checks this repo's GitHub Releases (`backend/updater/`,
+`UpdateState`/`OutdatedState`, replacing the old `OutdatedSubState`):
 
 - [`9b269f5`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/9b269f5e838e81a7a69fe6a644f072c232e37987) — FPS Counter: CPU/GPU/memory performance overlay + FPS Counter Settings submenu (hxhardware, DebugPrefs, pre-SmidrUI options)
 - [`dd035d6`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/dd035d6991e9e548d7488784d8c9e16f08552bed) — Video: hxvlc 2.3.0 precache + VideoSprite reuse (precacheVideo warming/adoption)
 - [`3d05358`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/3d053580edd7cdffadcb6564368fbbe9eb007637) — Support building with clang on Windows
+- [`3ebcc60`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/3ebcc60) — Add self-updating functionality
+- [`e11e6af`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/e11e6af) — Document the updater
+- [`483d4ad`](https://github.com/MeguminBOT/FNF-PsychEngine/commit/483d4ad) — Updater: point self-update checks at FNF-PsychEngine-Template
 
 ---
 
