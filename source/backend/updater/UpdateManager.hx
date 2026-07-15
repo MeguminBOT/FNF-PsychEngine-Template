@@ -28,9 +28,9 @@ typedef UpdateInfo = {
  * Provides background update checks with thread-safe state management and version resolution.
  */
 class UpdateManager {
-	public static inline var REPO:String = 'MeguminBOT/FNF-PsychEngine';
-	static inline var RELEASES_URL:String = 'https://api.github.com/repos/MeguminBOT/FNF-PsychEngine/releases';
-	public static inline var RELEASES_PAGE:String = 'https://github.com/MeguminBOT/FNF-PsychEngine/releases';
+	public static inline var REPO:String = 'MeguminBOT/FNF-PsychEngine-Template';
+	static inline var RELEASES_URL:String = 'https://api.github.com/repos/MeguminBOT/FNF-PsychEngine-Template/releases';
+	public static inline var RELEASES_PAGE:String = 'https://github.com/MeguminBOT/FNF-PsychEngine-Template/releases';
 
 	public static function currentChannel():UpdateChannel {
 		return (ClientPrefs.data.updateChannel == BleedingEdge) ? BleedingEdge : Stable;
