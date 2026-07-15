@@ -1,0 +1,99 @@
+# Builds the desktop release binaries and publishes them as a GitHub Release.
+#
+# Trigger: push a tag like `release-1.0.6`. The in-engine self-updater's Stable
+# channel looks for exactly these tags on this repo (non-prerelease, `release-`
+# prefix, SemVer higher than the running build), so the tag name IS the version
+# users update to. Bump `MainMenuState.psychEngineVersion` before tagging.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'release-*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows
+            bin: export/release/windows/bin
+            asset: PsychEngine-windows
+          - os: ubuntu-latest
+            target: linux
+            bin: export/release/linux/bin
+            asset: PsychEngine-linux
+          - os: macos-15
+            target: mac
+            bin: export/release/macos/bin
+            asset: PsychEngine-macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: 4.3.7
+
+      - name: Resolve version (strip release- prefix)
+        id: ver
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#release-}" >> "$GITHUB_OUTPUT"
+
+      - name: Install system packages (VLC)
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvlc-dev libvlccore-dev
+
+      - name: Install Haxe dependencies (Windows)
+        if: matrix.target == 'windows'
+        run: |
+          cd setup
+          windows.bat
+        shell: cmd
+
+      - name: Install Haxe dependencies (Unix)
+        if: matrix.target != 'windows'
+        run: |
+          chmod +x ./setup/unix.sh
+          cd setup && ./unix.sh
+
+      - name: Compile (release)
+        run: haxelib run lime build Project.xml ${{ matrix.target }} --app-version="${{ steps.ver.outputs.version }}"
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path "${{ matrix.bin }}/*" -DestinationPath "${{ matrix.asset }}.zip"
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        run: cd "${{ matrix.bin }}" && zip -r "$GITHUB_WORKSPACE/${{ matrix.asset }}.zip" .
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: dist
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*.zip
+          generate_release_notes: true
+          prerelease: false # `release-*` is a Stable-channel tag; never mark prerelease here
