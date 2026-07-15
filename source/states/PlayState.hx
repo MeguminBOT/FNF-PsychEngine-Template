@@ -661,7 +661,7 @@ class PlayState extends MusicBeatState {
 		cacheCountdown();
 		cachePopUpScore();
 
-		if (eventNotes.length < 1)
+		if (eventNotes.length > 0)
 			checkEventNote();
 	}
 
