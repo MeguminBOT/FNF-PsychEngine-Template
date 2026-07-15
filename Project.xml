@@ -98,7 +98,9 @@
 		<haxelib name="funkin.vis" if="BASE_GAME_FILES"/>
 	</section>
 
-	<define name="CHECK_FOR_UPDATES" if="desktop officialBuild"/>
+	<!-- In-engine self-updater: active only in desktop *release* builds (the official releases).
+	     Debug/dev builds never check for or install updates. -->
+	<define name="CHECK_FOR_UPDATES" if="desktop release"/>
 
 	<section if="MODS_ALLOWED">
 		<assets path='example_mods' rename='mods' embed='false' type='template' unless="mac"/>
