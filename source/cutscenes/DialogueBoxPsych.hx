@@ -47,7 +47,8 @@ class DialogueBoxPsych extends FlxSpriteGroup {
 
 	var curCharacter:String = "";
 
-	// var charPositionList:Array<String> = ['left', 'center', 'right'];
+	// Whether this dialogue started its own music (so it only fades/stops what it owns, not unrelated tracks).
+	var musicStarted:Bool = false;
 
 	public function new(dialogueList:DialogueFile, ?song:String = null) {
 		super();
@@ -59,6 +60,7 @@ class DialogueBoxPsych extends FlxSpriteGroup {
 		if (song != null && song != '') {
 			FlxG.sound.playMusic(Paths.music(song), 0);
 			FlxG.sound.music.fadeIn(2, 0, 1);
+			musicStarted = true;
 		}
 
 		bgFade = new FlxSprite(-500, -500).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.WHITE);
@@ -200,7 +202,8 @@ class DialogueBoxPsych extends FlxSpriteGroup {
 					}
 					skipText.visible = false;
 					updateBoxOffsets(box);
-					FlxG.sound.music.fadeOut(1, 0, (_) -> FlxG.sound.music.stop());
+					if (musicStarted && FlxG.sound.music != null)
+						FlxG.sound.music.fadeOut(1, 0, (_) -> FlxG.sound.music.stop());
 				} else {
 					startNextDialog();
 				}
