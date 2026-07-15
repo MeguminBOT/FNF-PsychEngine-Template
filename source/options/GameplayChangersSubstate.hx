@@ -6,7 +6,7 @@ import options.Option.OptionType;
 
 class GameplayChangersSubstate extends MusicBeatSubstate {
 	private var curSelected:Int = 0;
-	private var optionsArray:Array<Dynamic> = [];
+	private var optionsArray:Array<GameplayOption> = [];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
@@ -346,7 +346,6 @@ class GameplayOption {
 		this.name = Language.getPhrase('setting_$name', name);
 		this.variable = variable;
 		this.type = type;
-		this.defaultValue = defaultValue;
 		this.options = options;
 
 		if (defaultValue == 'null variable value') {
@@ -365,6 +364,7 @@ class GameplayOption {
 				default:
 			}
 		}
+		this.defaultValue = defaultValue; // store the resolved default, not the 'null variable value' sentinel
 
 		if (getValue() == null)
 			setValue(defaultValue);
